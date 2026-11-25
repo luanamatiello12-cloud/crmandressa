@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Talhão CRM</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: documento de produto em coluna de leitura + protótipo de celular navegável; abas no topo. */
+:root{
+  --bg:#f5f6f1; --surface:#ffffff; --sunk:#eceee6; --line:#d9ddd0;
+  --fg:#1b241e; --muted:#5d6a60; --soil:#6b4a2b;
+  --leaf:#2f6b3a; --leaf-soft:#e2eee1; --corn:#c98f0e; --corn-soft:#f7ecd0;
+  --risk:#b4432f; --risk-soft:#f6e1dc; --ok:#2f6b3a;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-data:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121713; --surface:#1a211c; --sunk:#232b25; --line:#323c34;
+  --fg:#e6ebe4; --muted:#9aa79c; --soil:#c9a27c;
+  --leaf:#7cc28a; --leaf-soft:#1f3324; --corn:#e7b440; --corn-soft:#3a3018;
+  --risk:#ef8a76; --risk-soft:#3c221d; --ok:#7cc28a; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#121713; --surface:#1a211c; --sunk:#232b25; --line:#323c34;
+  --fg:#e6ebe4; --muted:#9aa79c; --soil:#c9a27c;
+  --leaf:#7cc28a; --leaf-soft:#1f3324; --corn:#e7b440; --corn-soft:#3a3018;
+  --risk:#ef8a76; --risk-soft:#3c221d; --ok:#7cc28a; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-block:0 64px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15;margin:0}
+a{color:var(--leaf)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--corn);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding-block:14px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{flex:none}
+.brand b{font-family:var(--f-display);font-size:20px;letter-spacing:-.01em}
+.brand span{color:var(--muted);font-size:13px}
+.tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:10px}
+.tabs a{text-decoration:none;color:var(--muted);padding:6px 14px;border-radius:7px;font-weight:500;font-size:14px}
+.tabs a[aria-current="page"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgb(0 0 0 / .08)}
+
+/* ---------- PLANO ---------- */
+.doc{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;padding-top:40px}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);align-self:start;font-size:13px}
+.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:t}
+.toc a{display:flex;gap:8px;text-decoration:none;color:var(--muted);padding:4px 0}
+.toc a:hover{color:var(--fg)}
+.toc a::before{counter-increment:t;content:counter(t,decimal-leading-zero);font-family:var(--f-data);font-size:11px;color:var(--corn);padding-top:2px}
+.prose{max-width:720px;min-width:0}
+.prose section{padding-bottom:40px;margin-bottom:40px;border-bottom:1px solid var(--line)}
+.prose section:last-child{border:0}
+.eyebrow{font-family:var(--f-data);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--corn)}
+.prose h1{font-size:clamp(30px,4.6vw,44px);letter-spacing:-.02em;margin:8px 0 16px}
+.prose h2{font-size:26px;letter-spacing:-.01em;margin:6px 0 14px}
+.prose h3{font-size:17px;margin:22px 0 6px}
+.prose p{margin:0 0 12px}
+.lede{font-size:17px;color:var(--muted)}
+.prose ul{padding-left:20px;margin:0 0 12px}
+.prose li{margin-bottom:4px}
+.callout{background:var(--corn-soft);border-radius:10px;padding:14px 16px;margin:16px 0}
+.callout b{display:block;font-family:var(--f-display);margin-bottom:2px}
+.risks{display:grid;gap:10px;margin-top:14px}
+.risk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.sev{font-family:var(--f-data);font-size:11px;padding:2px 8px;border-radius:99px;align-self:start;margin-top:3px;white-space:nowrap}
+.sev.h{background:var(--risk-soft);color:var(--risk)} .sev.m{background:var(--corn-soft);color:var(--soil)}
+.risk h3{margin:0;font-size:16px}
+.risk p{grid-column:2;margin:0;color:var(--muted);font-size:14px}
+.risk p strong{color:var(--fg)}
+.tbl{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:540px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600;background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--f-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;font-weight:500;white-space:nowrap}
+.pill.in{background:var(--leaf-soft);color:var(--leaf)} .pill.later{background:var(--sunk);color:var(--muted)} .pill.cut{background:var(--risk-soft);color:var(--risk)}
+.phases{display:grid;gap:0;margin-top:14px;border-left:2px solid var(--line);padding-left:20px}
+.phase{position:relative;padding-bottom:20px}
+.phase::before{content:"";position:absolute;left:-27px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--corn)}
+.phase h3{margin:0}
+.phase .when{font-family:var(--f-data);font-size:12px;color:var(--muted)}
+.gate{font-size:13px;background:var(--leaf-soft);color:var(--fg);border-radius:8px;padding:8px 12px;margin-top:6px}
+.gate b{color:var(--leaf)}
+pre.mermaid{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto}
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0}
+.stack div{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface);font-size:14px}
+.stack b{display:block;font-family:var(--f-display);font-size:15px}
+.stack span{color:var(--muted)}
+
+/* ---------- PROTÓTIPO ---------- */
+.proto{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:48px;padding-top:40px;align-items:start}
+.proto-notes{min-width:0;max-width:520px}
+.proto-notes h1{font-size:clamp(28px,4vw,38px);letter-spacing:-.02em;margin:8px 0 12px}
+.proto-notes p{color:var(--muted)}
+.tour{display:grid;gap:8px;margin-top:20px}
+.tour button{display:flex;gap:12px;align-items:baseline;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
+.tour button:hover{border-color:var(--leaf)}
+.tour button span:first-child{font-family:var(--f-data);font-size:11px;color:var(--corn)}
+.tour button b{display:block;font-weight:600}
+.tour button small{color:var(--muted);font-size:13px}
+
+.phone{width:100%;max-width:390px;height:780px;border-radius:38px;border:10px solid #1f2621;background:var(--bg);position:relative;overflow:hidden;
+  box-shadow:0 30px 60px -30px rgb(20 40 25 / .45);display:flex;flex-direction:column;justify-self:center}
+.ph-status{display:flex;justify-content:space-between;padding:10px 22px 4px;font-family:var(--f-data);font-size:11px;color:var(--muted)}
+.ph-status .off{color:var(--corn)}
+.screen{flex:1;overflow-y:auto;padding:6px 16px 90px;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 4px 14px}
+.nav button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:var(--muted);cursor:pointer;padding:4px 0}
+.nav button svg{width:22px;height:22px}
+.nav button[aria-current="true"]{color:var(--leaf);font-weight:600}
+.nav .fab{margin-top:-24px}
+.nav .fab i{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--leaf);color:var(--bg);box-shadow:0 6px 16px -6px var(--leaf)}
+.nav .fab svg{width:26px;height:26px}
+
+.s-h{display:flex;justify-content:space-between;align-items:center;margin:6px 0 14px}
+.s-h h2{font-size:22px}
+.s-h small{color:var(--muted);font-size:12px;display:block}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--muted);font-size:14px;margin-bottom:14px}
+.search input{border:0;background:none;outline:none;flex:1;font:inherit;color:var(--fg);min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px}
+.kpi b{font-family:var(--f-display);font-size:22px;display:block;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{font-size:11px;color:var(--muted);line-height:1.25;display:block}
+.kpi.warn b{color:var(--risk)}
+.lbl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:18px 0 8px;display:flex;justify-content:space-between}
+.lbl a{text-transform:none;letter-spacing:0;font-weight:500;cursor:pointer}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.row{display:flex;gap:10px;align-items:center;padding:11px 12px;border-bottom:1px solid var(--line);cursor:pointer;width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--sunk)}
+.row .t{font-family:var(--f-data);font-size:12px;color:var(--muted);width:40px;flex:none}
+.row .m{flex:1;min-width:0}
+.row .m b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .m small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:600;font-size:13px;flex:none;background:var(--leaf-soft);color:var(--leaf)}
+.av.c{background:var(--corn-soft);color:var(--soil)}
+.chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);flex:none;display:grid;place-items:center}
+.done .chk{background:var(--leaf);border-color:var(--leaf)}
+.done .m b{text-decoration:line-through;color:var(--muted)}
+.tag{font-size:10.5px;padding:1px 7px;border-radius:99px;font-weight:600;white-space:nowrap}
+.tag.late{background:var(--risk-soft);color:var(--risk)} .tag.g{background:var(--leaf-soft);color:var(--leaf)} .tag.y{background:var(--corn-soft);color:var(--soil)}
+.alert{display:flex;gap:10px;background:var(--corn-soft);border-radius:12px;padding:11px 12px;font-size:13px;margin-bottom:8px;align-items:flex-start}
+.alert b{display:block}
+.alert svg{flex:none;color:var(--soil);margin-top:2px}
+
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 12px;font-size:12.5px;white-space:nowrap;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.back{background:none;border:0;color:var(--leaf);cursor:pointer;padding:0;font-size:14px;margin:4px 0 8px}
+.card-h{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card-h h2{font-size:20px;margin-bottom:2px}
+.card-h .sub{color:var(--muted);font-size:13px}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.acts button{background:var(--sunk);border:0;border-radius:10px;padding:8px 2px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.acts svg{width:18px;height:18px;color:var(--leaf)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.facts div{background:var(--sunk);border-radius:10px;padding:8px 10px}
+.facts small{display:block;font-size:11px;color:var(--muted)}
+.facts b{font-size:14px;font-variant-numeric:tabular-nums}
+.tl{position:relative;padding-left:22px}
+.tl::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.ev{position:relative;padding-bottom:14px}
+.ev::before{content:"";position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--leaf)}
+.ev.new::before{background:var(--corn);border-color:var(--corn)}
+.ev small{color:var(--muted);font-size:11.5px;font-family:var(--f-data)}
+.ev b{display:block;font-size:14px}
+.ev p{margin:2px 0 0;font-size:13px;color:var(--muted);line-height:1.45}
+
+.rec{text-align:center;padding:20px 0}
+.mic{width:96px;height:96px;border-radius:50%;border:0;background:var(--leaf);color:var(--bg);display:grid;place-items:center;margin:18px auto;cursor:pointer;position:relative}
+.mic svg{width:38px;height:38px}
+.mic.on{background:var(--risk)}
+.mic.on::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:3px solid var(--risk);opacity:.4;animation:pulse 1.2s infinite}
+@keyframes pulse{from{transform:scale(.9);opacity:.6}to{transform:scale(1.15);opacity:0}}
+@media (prefers-reduced-motion: reduce){.mic.on::after{animation:none}}
+.rec .timer{font-family:var(--f-data);font-size:20px}
+.rec p{color:var(--muted);font-size:13px;margin:4px 20px}
+.alt{display:flex;gap:8px;justify-content:center;margin-top:18px}
+.alt button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer}
+.quote{background:var(--sunk);border-radius:12px;padding:12px;font-size:13px;font-style:italic;color:var(--muted);margin-bottom:12px}
+.ai{border:1.5px solid var(--leaf);border-radius:14px;padding:12px;background:var(--surface)}
+.ai-h{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--leaf);font-weight:600;margin-bottom:8px}
+.fld{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.fld:last-child{border:0}
+.fld label{color:var(--muted);font-size:12px}
+.fld input{border:0;background:var(--sunk);border-radius:6px;padding:5px 8px;font:inherit;color:var(--fg);width:100%}
+.sugg{margin-top:10px;display:grid;gap:6px}
+.sugg label{display:flex;gap:8px;align-items:flex-start;font-size:13px;background:var(--leaf-soft);padding:8px 10px;border-radius:10px;cursor:pointer}
+.sugg input{accent-color:var(--leaf);margin-top:3px}
+.btn{display:block;width:100%;border:0;background:var(--leaf);color:var(--bg);border-radius:12px;padding:13px;font-weight:600;font-size:15px;cursor:pointer;margin-top:12px}
+.btn.ghost{background:none;color:var(--muted);margin-top:4px;padding:8px}
+
+.funnel{display:grid;gap:8px}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stage-h{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}
+.stage-h b{font-size:14px}
+.stage-h span{font-family:var(--f-data);color:var(--muted);font-size:12px}
+.bar{height:6px;background:var(--sunk);border-radius:99px;margin:8px 0;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--leaf);border-radius:99px}
+.opp{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:3px 0;border-top:1px dashed var(--line)}
+.opp span:last-child{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
+
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px}
+.week button{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 0;font-size:11px;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.week button b{font-size:15px;color:var(--fg);font-variant-numeric:tabular-nums}
+.week button[aria-pressed="true"]{background:var(--leaf);border-color:var(--leaf);color:var(--bg)}
+.week button[aria-pressed="true"] b{color:var(--bg)}
+.week i{width:4px;height:4px;border-radius:50%;background:var(--corn);margin-top:2px}
+.gsync{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:10px}
+.gsync i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.ext{opacity:.75}
+
+.toast{position:absolute;left:16px;right:16px;bottom:88px;background:var(--fg);color:var(--bg);border-radius:12px;padding:11px 14px;font-size:13px;transform:translateY(20px);opacity:0;transition:.25s;pointer-events:none}
+.toast.show{transform:none;opacity:1}
+.sheet-bg{position:absolute;inset:0;background:rgb(0 0 0 / .35);display:flex;align-items:flex-end}
+.sheet{background:var(--surface);width:100%;border-radius:20px 20px 0 0;padding:18px 16px 28px}
+.sheet h3{font-size:17px;margin-bottom:10px}
+.sheet-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sheet-g button{background:var(--sunk);border:0;border-radius:12px;padding:14px 6px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.sheet-g svg{width:22px;height:22px;color:var(--leaf)}
+.sheet-g button.main{grid-column:1 / -1;flex-direction:row;justify-content:center;background:var(--leaf);color:var(--bg);font-size:14px;font-weight:600}
+.sheet-g button.main svg{color:var(--bg)}
+
+@media (max-width:860px){
+  .doc{grid-template-columns:minmax(0,1fr);gap:0}
+  .toc{display:none}
+  .proto{grid-template-columns:minmax(0,1fr);gap:28px}
+  .proto-notes{max-width:none}
+  .phone{height:720px}
+}
+@media (max-width:420px){ .phone{border-width:6px;border-radius:28px} }
+</style>
+</head>
+<body>
+
+<header class="top wrap">
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect width="30" height="30" rx="8" fill="var(--leaf)"/><path d="M6 21h18M6 16h18M6 11h18" stroke="var(--bg)" stroke-width="2" stroke-linecap="round" opacity=".9"/><circle cx="21" cy="9" r="3" fill="var(--corn)"/></svg>
+    <div><b>Talhão</b> <span>CRM para quem vende no campo · nome provisório</span></div>
+  </div>
+  <nav class="tabs" aria-label="Seções">
+    <a href="#plano" id="tab-plano">Plano do produto</a>
+    <a href="#mercado" id="tab-mercado">Mercado e concorrentes</a>
+    <a href="#prototipo" id="tab-prototipo">Protótipo do MVP</a>
+  </nav>
+</header>
+
+<!-- ======================= PLANO ======================= -->
+<main id="v-plano" class="wrap doc">
+  <aside class="toc" aria-label="Sumário">
+    <ol>
+      <li><a href="#plano" data-go="s-tese">Tese e veredito</a></li>
+      <li><a href="#plano" data-go="s-riscos">Riscos e premissas</a></li>
+      <li><a href="#plano" data-go="s-publico">Público inicial</a></li>
+      <li><a href="#plano" data-go="s-mvp">Escopo do MVP</a></li>
+      <li><a href="#plano" data-go="s-ux">Telas e experiência</a></li>
+      <li><a href="#plano" data-go="s-arq">Arquitetura</a></li>
+      <li><a href="#plano" data-go="s-custos">Custos</a></li>
+      <li><a href="#plano" data-go="s-preco">Preço e receita</a></li>
+      <li><a href="#plano" data-go="s-roadmap">Etapas e validação</a></li>
+      <li><a href="#plano" data-go="s-gtm">Lançamento</a></li>
+    </ol>
+  </aside>
+
+  <article class="prose">
+    <section id="s-tese">
+      <div class="eyebrow">Etapa 0 · estruturação antes de codar</div>
+      <h1>Um CRM que o RTV usa dentro da caminhonete, em 30 segundos</h1>
+      <p class="lede">A ideia é boa e nasce de uma dor real. Mas o projeto descrito tem escopo de empresa com 30 desenvolvedores. O caminho viável é outro: lançar um produto estreito, que faça três coisas melhor que o WhatsApp e a planilha, e só depois crescer para os 7 módulos.</p>
+      <div class="callout"><b>O concorrente real não é a Salesforce</b>É o WhatsApp + a agenda do celular + a memória. Esses três custam zero e não exigem disciplina. O produto só vence se registrar uma visita for <em>mais rápido</em> do que mandar um áudio para si mesmo.</div>
+      <h3>As três coisas que o MVP precisa fazer muito bem</h3>
+      <ul>
+        <li><strong>Registrar a visita falando.</strong> Áudio de 40 segundos vira registro organizado, com cliente, assunto, produto, oportunidade e próximo passo. O usuário confere e confirma.</li>
+        <li><strong>Lembrar por você.</strong> "O que preciso fazer hoje" e "quem está sem visita há 45 dias" aparecem sozinhos.</li>
+        <li><strong>Fechar o mês sem planilha.</strong> O relatório mensal que hoje consome uma tarde sai em um clique, a partir do que foi registrado.</li>
+      </ul>
+      <p>Todo o resto (campos demonstrativos, inteligência de mercado, equipes, ERP) entra depois, quando houver usuários pagando e pedindo.</p>
+    </section>
+
+    <section id="s-riscos">
+      <div class="eyebrow">Análise crítica</div>
+      <h2>Riscos e premissas que precisam ser testados</h2>
+      <p>Antes de investir, estas são as premissas mais frágeis da proposta. As duas primeiras podem inviabilizar o modelo B2C se não forem tratadas.</p>
+      <div class="risks">
+        <div class="risk"><span class="sev h">alto</span><h3>Voz com IA já existe no mercado</h3>
+          <p>A pesquisa encontrou Noctua, ManejeBem e Agendor fazendo registro de visita por áudio. <strong>Esse recurso é requisito mínimo, não diferencial.</strong> O diferencial proposto é o foco em geração de demanda e relacionamento com o canal. Veja a aba <a href="#mercado">Mercado e concorrentes</a>.</p></div>
+        <div class="risk"><span class="sev h">alto</span><h3>Quem é dono dos dados?</h3>
+          <p>Um RTV de multinacional que guarda a carteira e as negociações da empresa num app pessoal pode estar violando contrato de confidencialidade e política de TI. <strong>Muitas multinacionais já impõem um CRM corporativo</strong>, o que tira esse profissional do público pagante individual. Teste isso cedo: pergunte nas entrevistas se a empresa permite e se já existe sistema obrigatório.</p></div>
+        <div class="risk"><span class="sev h">alto</span><h3>Indivíduo paga pouco; empresa demora a comprar</h3>
+          <p>O profissional sente a dor, mas costuma achar que a empresa deveria pagar. A empresa paga, mas o ciclo de venda leva meses. <strong>O plano individual serve para validar e gerar demanda de baixo para cima</strong>; a receita sustentável tende a vir de revendas, cooperativas e distribuidores.</p></div>
+        <div class="risk"><span class="sev m">médio</span><h3>Adoção depende de disciplina</h3>
+          <p>CRMs morrem porque registrar dá trabalho e o benefício é tardio. <strong>O app precisa devolver valor no mesmo dia</strong> (lembretes, resumo antes da visita), senão o usuário volta para o WhatsApp na segunda semana.</p></div>
+        <div class="risk"><span class="sev m">médio</span><h3>Sinal fraco no campo</h3>
+          <p>Offline não é diferencial, é pré-requisito. Mas sincronização offline em dois sentidos é cara de construir. No MVP, offline cobre o que acontece no campo: <strong>gravar áudio, registrar visita, ver ficha e agenda do dia</strong>. A IA processa quando o sinal voltar.</p></div>
+        <div class="risk"><span class="sev m">médio</span><h3>Google Agenda bidirecional é um projeto à parte</h3>
+          <p>Conflitos de edição, recorrências, fusos e duplicidades consomem semanas. No MVP: <strong>enviar do CRM para o Google e ler os eventos externos</strong>. Edição nos dois sentidos fica para a fase 2.</p></div>
+        <div class="risk"><span class="sev m">médio</span><h3>IA que inventa dados</h3>
+          <p>Um relatório com volume ou cliente errado destrói confiança. Regra de produto: <strong>a IA sempre propõe, o usuário sempre confirma</strong>, e todo resumo aponta de quais registros saiu.</p></div>
+        <div class="risk"><span class="sev m">médio</span><h3>LGPD</h3>
+          <p>Telefone, aniversário e localização de produtores são dados pessoais. É preciso base legal, termo de uso, opção de exclusão e cuidado ao enviar áudios para provedores de IA (contrato que proíba treino com os dados).</p></div>
+      </div>
+    </section>
+
+    <section id="s-publico">
+      <div class="eyebrow">Para quem primeiro</div>
+      <h2>Público inicial: quem é dono da própria carteira</h2>
+      <p>Comece pelos profissionais que <strong>decidem sozinhos</strong> qual ferramenta usar e que não têm CRM imposto:</p>
+      <ul>
+        <li>Representantes comerciais autônomos e RTVs de revendas e distribuidores regionais.</li>
+        <li>Consultores e agrônomos que atendem vários produtores por conta própria.</li>
+        <li>Pequenas equipes comerciais (3 a 15 pessoas) de revendas e cooperativas, onde o gerente quer visibilidade e hoje recebe tudo pelo WhatsApp.</li>
+      </ul>
+      <p>O perfil que inspirou a ideia (geração de demanda em multinacional) é excelente para <strong>desenho e validação</strong> do produto, mas provavelmente não é o primeiro comprador. O caminho até as multinacionais passa pelos canais de distribuição delas: se as revendas usarem, a indústria passa a querer os dados consolidados.</p>
+    </section>
+
+    <section id="s-mvp">
+      <div class="eyebrow">Corte de escopo</div>
+      <h2>O que entra no MVP</h2>
+      <p>Cada linha foi avaliada por uma pergunta: o profissional sente falta disso na primeira semana de uso?</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Módulo pedido</th><th>No MVP</th><th>Decisão</th></tr></thead>
+        <tbody>
+          <tr><td>1 · Clientes e contatos</td><td><span class="pill in">entra</span></td><td>Empresa/produtor, pessoas vinculadas, função, telefone, aniversário, região, status (ativo, inativo, potencial). Propriedade rural como campo simples. Importação por planilha e contatos do celular.</td></tr>
+          <tr><td>2 · Visitas e relacionamento</td><td><span class="pill in">entra, é o núcleo</span></td><td>Registro por voz ou texto, fotos, próximos passos, linha do tempo por cliente.</td></tr>
+          <tr><td>3 · Oportunidades</td><td><span class="pill in">versão simples</span></td><td>Produto/híbrido, volume (sacos), área (ha), safra, 4 etapas, motivo de perda. Sem metas por enquanto.</td></tr>
+          <tr><td>5 · Agenda e Google</td><td><span class="pill in">versão simples</span></td><td>Tarefas, compromissos, lembretes, aniversários. Google: envio + leitura.</td></tr>
+          <tr><td>7 · IA</td><td><span class="pill in">só o essencial</span></td><td>Áudio → registro estruturado e sugestão de próximos passos. Pesquisa por linguagem natural fica para depois.</td></tr>
+          <tr><td>Relatórios</td><td><span class="pill in">1 modelo</span></td><td>Fechamento mensal em PDF com resumo da IA. Exportação Excel da lista de visitas.</td></tr>
+          <tr><td>4 · Atividades de campo</td><td><span class="pill in">versão simples</span></td><td>Revisado após a pesquisa de mercado: campos demonstrativos e dias de campo diferenciam o produto. Local, produtor, híbridos, participantes, fotos e avaliação. Acompanhamento de safra completo na fase 2.</td></tr>
+          <tr><td>6 · Inteligência de mercado</td><td><span class="pill later">fase 3</span></td><td>Exige meses de dados acumulados. Sem dados, o painel fica vazio.</td></tr>
+          <tr><td>Equipes e permissões</td><td><span class="pill later">fase 2</span></td><td>Arquitetura multiempresa desde o dia 1, interface de equipe depois.</td></tr>
+          <tr><td>Rotas, WhatsApp, ERP</td><td><span class="pill cut">fora</span></td><td>Integrações só sob demanda de cliente pagante.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="s-ux">
+      <div class="eyebrow">Experiência</div>
+      <h2>Cinco telas e um botão</h2>
+      <p>A navegação inteira cabe numa barra inferior. O botão central <strong>+</strong> abre o registro rápido a partir de qualquer tela, porque é a ação mais frequente.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Tela</th><th>Responde à pergunta</th><th>Conteúdo</th></tr></thead>
+        <tbody>
+          <tr><td><b>Hoje</b></td><td>O que preciso fazer hoje? Quem precisa de atenção?</td><td>Compromissos do dia, tarefas atrasadas, clientes sem visita, aniversários, 3 indicadores do mês.</td></tr>
+          <tr><td><b>Clientes</b></td><td>O que já aconteceu com este cliente?</td><td>Busca, filtros por região e status, ficha com contatos, oportunidades e linha do tempo.</td></tr>
+          <tr><td><b>+ Registrar</b></td><td>Como registro sem perder tempo?</td><td>Gravar áudio (padrão), texto, foto. IA estrutura, usuário confirma.</td></tr>
+          <tr><td><b>Funil</b></td><td>Quais oportunidades estão abertas?</td><td>Etapas com volume em sacos, previsão por safra.</td></tr>
+          <tr><td><b>Agenda</b></td><td>Quais são meus próximos compromissos?</td><td>Semana, eventos do CRM e do Google, vínculo com a ficha do cliente.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Regras de interface</h3>
+      <ul>
+        <li>Nenhum formulário com mais de 4 campos obrigatórios. Cadastro de cliente: nome e telefone; o resto se completa com o tempo.</li>
+        <li>Botões grandes (mín. 44 px), uso com uma mão, contraste alto para sol forte.</li>
+        <li>Vocabulário do campo: safra, safrinha, sacos, hectares, híbrido, revenda. Nada de "lead" ou "pipeline".</li>
+        <li>Status sempre visível: o que está salvo só no aparelho aparece marcado até sincronizar.</li>
+      </ul>
+      <p><a href="#prototipo">Abra o protótipo navegável →</a></p>
+    </section>
+
+    <section id="s-arq">
+      <div class="eyebrow">Tecnologia</div>
+      <h2>Arquitetura proposta</h2>
+      <p>Critérios: um código para celular e web, offline de verdade, custo baixo no início e banco preparado para equipes e empresas sem reescrever.</p>
+      <div class="stack">
+        <div><b>App</b><span>React Native com Expo: Android, iOS e web do mesmo código.</span></div>
+        <div><b>Banco local</b><span>SQLite no aparelho, com fila de sincronização (PowerSync ou similar).</span></div>
+        <div><b>Backend</b><span>Supabase: Postgres, login, arquivos e regras de acesso por linha.</span></div>
+        <div><b>IA</b><span>Transcrição de voz + modelo de linguagem com saída em formato fixo (JSON).</span></div>
+        <div><b>Agenda</b><span>API oficial do Google Calendar, com OAuth e escopo mínimo.</span></div>
+        <div><b>Relatórios</b><span>PDF gerado no servidor a partir de um modelo HTML.</span></div>
+      </div>
+      <pre class="mermaid">flowchart LR
+  A[App no celular<br/>SQLite offline] -- sincroniza quando há sinal --> B[(Supabase<br/>Postgres + arquivos)]
+  W[Versão web] --> B
+  A -- áudio --> F[Função no servidor]
+  F --> T[Transcrição]
+  T --> L[Modelo de linguagem<br/>extrai cliente, produto, próximos passos]
+  L -- rascunho para confirmar --> A
+  B <--> G[Google Agenda API]
+  B --> R[Gerador de relatório PDF]</pre>
+      <h3>Modelo de dados (núcleo)</h3>
+      <p>Toda tabela carrega <code>organizacao_id</code>. Um usuário individual é uma organização de uma pessoa; quando uma revenda contratar, os mesmos dados passam a ter equipe e permissões sem migração.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Entidade</th><th>Principais campos</th></tr></thead>
+        <tbody>
+          <tr><td>organizacao, usuario, papel</td><td>plano, papel (profissional, gestor, admin)</td></tr>
+          <tr><td>cliente</td><td>tipo (cooperativa, revenda, produtor…), região, status, potencial, responsável</td></tr>
+          <tr><td>contato</td><td>cliente, nome, função, telefone, e-mail, aniversário</td></tr>
+          <tr><td>propriedade</td><td>cliente, município, área (ha), coordenadas</td></tr>
+          <tr><td>interacao</td><td>tipo (visita, reunião, ligação, dia de campo), data, participantes, resumo, áudio, transcrição, fotos</td></tr>
+          <tr><td>tarefa</td><td>origem (interação), prazo, status, vínculo com Google</td></tr>
+          <tr><td>oportunidade</td><td>cliente, produto, safra, volume (sc), área (ha), etapa, motivo de perda</td></tr>
+          <tr><td>produto</td><td>catálogo editável pelo usuário (híbridos, insumos)</td></tr>
+          <tr><td>rascunho_ia</td><td>saída da IA aguardando confirmação, nunca gravada direto</td></tr>
+        </tbody>
+      </table></div>
+      <p>Uma alternativa mais barata para validar é começar como <strong>PWA</strong> (site instalável). O risco é o offline e a gravação de áudio no iPhone, que funcionam pior em navegador. Como o uso em campo é o coração do produto, a recomendação é ir direto ao app.</p>
+    </section>
+
+    <section id="s-custos">
+      <div class="eyebrow">Investimento</div>
+      <h2>Custos estimados</h2>
+      <p>Valores de referência para planejamento, a confirmar com orçamentos. A maior variável é quem desenvolve.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Item</th><th>Faixa</th><th>Observação</th></tr></thead>
+        <tbody>
+          <tr><td>Desenvolvimento do MVP</td><td class="num">R$ 0 – 150 mil</td><td>De sócio técnico com participação (menor caixa) a software house. Freelancer sênior fica no meio, 3–4 meses.</td></tr>
+          <tr><td>Infraestrutura (até ~200 usuários)</td><td class="num">US$ 50 – 150/mês</td><td>Banco, armazenamento de fotos e áudios, sincronização.</td></tr>
+          <tr><td>IA por usuário ativo</td><td class="num">R$ 3 – 10/mês</td><td>~40 áudios de 1 min/mês: transcrição + estruturação + relatório mensal.</td></tr>
+          <tr><td>Lojas de apps</td><td class="num">US$ 99/ano + US$ 25</td><td>Apple Developer e Google Play.</td></tr>
+          <tr><td>Verificação Google OAuth</td><td class="num">variável</td><td>Escopos de agenda exigem revisão do Google antes de abrir para o público.</td></tr>
+          <tr><td>Jurídico (termos, LGPD, CNPJ)</td><td class="num">R$ 3 – 8 mil</td><td>Uma vez, no lançamento.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout"><b>A decisão mais importante não é técnica</b>Sem um sócio técnico, o produto fica refém de quem foi contratado. Para um SaaS que precisa evoluir toda semana, vale buscar um cofundador de tecnologia antes de contratar uma fábrica de software.</div>
+    </section>
+
+    <section id="s-preco">
+      <div class="eyebrow">Monetização</div>
+      <h2>Hipóteses de preço para validar</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Plano</th><th>Para quem</th><th>Hipótese</th><th>Inclui</th></tr></thead>
+        <tbody>
+          <tr><td>Individual</td><td>RTV, consultor, promotor</td><td class="num">R$ 59–89/mês</td><td>Tudo do MVP, limite de minutos de IA</td></tr>
+          <tr><td>Equipe</td><td>Revendas, cooperativas</td><td class="num">R$ 69–119/usuário</td><td>Painel do gestor, carteira compartilhada, relatórios consolidados</td></tr>
+          <tr><td>Corporativo</td><td>Distribuidores, indústria</td><td class="num">contrato</td><td>SSO, integrações, implantação, SLA</td></tr>
+        </tbody>
+      </table></div>
+      <p>Plano anual com 2 meses de desconto ajuda a casar com o ciclo da safra. Teste de 30 dias sem cartão. Evite plano gratuito permanente no início: o custo de IA é por uso.</p>
+      <p>Para referência de meta: 300 usuários individuais a R$ 69 somam cerca de R$ 20 mil de receita mensal recorrente, ainda pouco para uma equipe. Duas ou três revendas com 10 usuários cada mudam a conta, por isso o plano Equipe deve vir logo na fase 2.</p>
+    </section>
+
+    <section id="s-roadmap">
+      <div class="eyebrow">Desenvolvimento por etapas</div>
+      <h2>Etapas, cada uma com um critério para seguir</h2>
+      <div class="phases">
+        <div class="phase"><div class="when">semanas 1–6 · custo quase zero</div><h3>0. Validação sem software</h3>
+          <p>20 entrevistas com RTVs, consultores e gerentes de revenda. Mostrar este protótipo. Fazer um teste "concierge": 5 pessoas mandam áudios de visita por WhatsApp e recebem o registro organizado e o relatório do mês feitos à mão (ou com IA, manualmente).</p>
+          <div class="gate"><b>Seguir se:</b> pelo menos 10 de 20 descrevem a dor sem você sugerir, e 5 aceitam pagar uma pré-venda ou entrar como usuário fundador.</div></div>
+        <div class="phase"><div class="when">meses 2–5</div><h3>1. MVP fechado</h3>
+          <p>Clientes, registro por voz, linha do tempo, tarefas, oportunidades simples, agenda com envio ao Google, relatório mensal. 15–30 usuários fundadores.</p>
+          <div class="gate"><b>Seguir se:</b> 60% dos usuários registram pelo menos 3 visitas por semana depois de 4 semanas.</div></div>
+        <div class="phase"><div class="when">meses 6–9</div><h3>2. Equipes e campo</h3>
+          <p>Plano Equipe com painel do gestor, permissões, campos demonstrativos e dias de campo, sincronização bidirecional com o Google, cobrança automática.</p>
+          <div class="gate"><b>Seguir se:</b> 3 revendas ou cooperativas pagando.</div></div>
+        <div class="phase"><div class="when">mês 10 em diante</div><h3>3. Inteligência</h3>
+          <p>Assistente que responde perguntas sobre a carteira, painéis de mercado e concorrência, metas, integrações com ERP e WhatsApp conforme os contratos pedirem.</p></div>
+      </div>
+    </section>
+
+    <section id="s-gtm">
+      <div class="eyebrow">Aquisição</div>
+      <h2>Estratégia de lançamento</h2>
+      <ul>
+        <li><strong>Sua rede é o primeiro canal.</strong> Agrônomos, RTVs e gerentes de revenda que você já atende são os usuários fundadores, com preço vitalício reduzido em troca de feedback semanal.</li>
+        <li><strong>Conteúdo útil no LinkedIn e no Instagram:</strong> rotina de RTV, como organizar a carteira na safra, modelo de relatório mensal. Atrai o público certo com custo baixo.</li>
+        <li><strong>Feiras e dias de campo da região</strong> (Show Rural, Itaipu Rural Show, eventos de cooperativas): demonstração de 60 segundos gravando uma visita por voz.</li>
+        <li><strong>Indicação:</strong> um mês grátis para quem indicar um colega que assine.</li>
+        <li><strong>De baixo para cima:</strong> quando 3 pessoas da mesma revenda usarem, ofereça ao gerente o painel da equipe.</li>
+      </ul>
+      <h3>Próximo passo recomendado</h3>
+      <p>Antes de qualquer código: montar o roteiro das 20 entrevistas e o teste concierge. Posso preparar o roteiro, o formulário de pré-cadastro e a página de apresentação para os usuários fundadores.</p>
+    </section>
+  </article>
+</main>
+
+<!-- ======================= MERCADO ======================= -->
+<main id="v-mercado" class="wrap doc" hidden>
+  <aside class="toc" aria-label="Sumário">
+    <ol>
+      <li><a href="#mercado" data-go="m-veredito">Veredito</a></li>
+      <li><a href="#mercado" data-go="m-numeros">O setor em números</a></li>
+      <li><a href="#mercado" data-go="m-tamanho">Tamanho do mercado</a></li>
+      <li><a href="#mercado" data-go="m-conc">Concorrentes</a></li>
+      <li><a href="#mercado" data-go="m-precos">Preços praticados</a></li>
+      <li><a href="#mercado" data-go="m-lacunas">Lacunas e posicionamento</a></li>
+      <li><a href="#mercado" data-go="m-plano">O que muda no plano</a></li>
+      <li><a href="#mercado" data-go="m-fontes">Fontes e limites</a></li>
+    </ol>
+  </aside>
+  <article class="prose">
+    <section id="m-veredito">
+      <div class="eyebrow">Pesquisa de mercado · novembro de 2026</div>
+      <h1>Um nicho real, já disputado, com espaço para um posicionamento preciso</h1>
+      <p class="lede">O mercado de CRM para o agro no Brasil já tem pelo menos dez produtos específicos, e três deles fazem registro de visita por áudio com IA. A ideia não é inédita. O que ainda está em aberto é um produto pensado para quem faz <strong>geração de demanda e relacionamento com o canal</strong>, e não para quem tira pedido.</p>
+      <div class="callout"><b>Conclusão principal</b>No Brasil, o público endereçável estimado fica entre 30 e 70 mil profissionais, algo como R$ 25 a 60 milhões por ano em assinaturas. Isso sustenta muito bem uma empresa enxuta e lucrativa, mas não por si só uma startup de crescimento acelerado. Para ir além, seria preciso vender para empresas (revendas, cooperativas, indústrias regionais) e, mais tarde, expandir para outros países da América do Sul.</div>
+    </section>
+
+    <section id="m-numeros">
+      <div class="eyebrow">Contexto</div>
+      <h2>O setor em números</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Indicador</th><th>Valor</th><th>Fonte</th></tr></thead>
+        <tbody>
+          <tr><td>Faturamento da distribuição de insumos (associadas Andav)</td><td class="num">R$ 167 bi (2024)</td><td>Andav, 10ª Pesquisa Nacional da Distribuição</td></tr>
+          <tr><td>Unidades comerciais associadas à Andav</td><td class="num">3,8 mil</td><td>Andav (2025)</td></tr>
+          <tr><td>Canais de venda de insumos no país (estudo mais amplo, inclui não associados)</td><td class="num">6.872</td><td>FGV Agroanalysis: 5.339 distribuidores + 1.533 cooperativas</td></tr>
+          <tr><td>Cooperativas agropecuárias</td><td class="num">1.172 a 1.254</td><td>Anuários OCB 2025 e 2026</td></tr>
+          <tr><td>Movimentação das cooperativas agropecuárias</td><td class="num">R$ 438 bi</td><td>OCB (dados de 2024)</td></tr>
+          <tr><td>Engenheiros agrônomos registrados</td><td class="num">~122 mil</td><td>Confea (dado de 2018, o mais recente encontrado)</td></tr>
+          <tr><td>Estabelecimentos agropecuários</td><td class="num">5,07 mi</td><td>IBGE, Censo Agro 2017</td></tr>
+          <tr><td>Agtechs mapeadas no Brasil</td><td class="num">1.972</td><td>Radar Agtech Brasil 2024 (Embrapa)</td></tr>
+        </tbody>
+      </table></div>
+      <p>Não existe estatística pública do número de RTVs no Brasil. A estimativa abaixo é construída a partir do número de canais e precisa ser confirmada nas entrevistas.</p>
+    </section>
+
+    <section id="m-tamanho">
+      <div class="eyebrow">Dimensionamento de baixo para cima</div>
+      <h2>Tamanho do mercado</h2>
+      <p>Não há estudo público sobre "CRM para o agro". Relatórios globais medem a categoria vizinha, software de gestão de fazendas (cerca de US$ 3 a 3,4 bilhões em 2024, segundo MarketsandMarkets e Data Bridge), que não serve para este produto. Por isso a conta abaixo parte do número de profissionais. <strong>As quantidades por canal são hipóteses minhas</strong>, marcadas para validação.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Segmento</th><th>Base</th><th>Hipótese</th><th>Profissionais</th></tr></thead>
+        <tbody>
+          <tr><td>Revendas e distribuidores</td><td class="num">~5.300 canais</td><td>~4 vendedores de campo por canal</td><td class="num">~21 mil</td></tr>
+          <tr><td>Cooperativas agropecuárias</td><td class="num">~1.200</td><td>~10 técnicos e comerciais por cooperativa (as grandes têm centenas, as pequenas, poucos)</td><td class="num">~12 mil</td></tr>
+          <tr><td>Consultores e representantes autônomos</td><td class="num">~122 mil agrônomos</td><td>~10% atuam com carteira própria</td><td class="num">~12 mil</td></tr>
+          <tr><td>Indústria (RTVs, promotores, geração de demanda)</td><td class="num">sem dado</td><td>muitos já usam CRM corporativo</td><td class="num">5 a 15 mil</td></tr>
+          <tr><td><b>Total estimado</b></td><td></td><td></td><td class="num"><b>30 a 70 mil</b></td></tr>
+        </tbody>
+      </table></div>
+      <div class="stack">
+        <div><b>Mercado total</b><span class="num">~50 mil × R$ 70 × 12 ≈ <strong>R$ 42 mi/ano</strong> (faixa R$ 25–60 mi)</span></div>
+        <div><b>Mercado alcançável no início</b><span>Sul do Brasil, revendas e consultores: ~25% do total, ≈ R$ 10 mi/ano</span></div>
+        <div><b>Meta realista em 3 anos</b><span>500 a 1.000 usuários pagantes ≈ <strong>R$ 0,4–0,8 mi/ano</strong> de receita recorrente</span></div>
+      </div>
+      <p>Pela contagem do FGV Agroanalysis, o Sul concentra grande parte dos canais e das cooperativas, além de ser a sua região de atuação. Por isso faz sentido começar por lá.</p>
+    </section>
+
+    <section id="m-conc">
+      <div class="eyebrow">Mapa competitivo</div>
+      <h2>Concorrentes</h2>
+      <p>Organizei em quatro grupos. As informações vêm dos sites e das lojas de aplicativos de cada empresa, ou seja, é o que elas dizem de si mesmas.</p>
+      <h3>1 · CRMs específicos para o agro</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Produto</th><th>Para quem</th><th>O que oferece</th></tr></thead>
+        <tbody>
+          <tr><td><b>AgroRota</b></td><td>Revendas, RTVs, cooperativas</td><td>Visitas com GPS, rotas, funil, orçamentos e pedidos, pós-venda por talhão e safra</td></tr>
+          <tr><td><b>Rural Rota</b></td><td>RTV, vendedor externo</td><td>Agenda com geolocalização, funil, caderno de campo, funciona offline. App gratuito para baixar</td></tr>
+          <tr><td><b>Voraz Agro CRM</b></td><td>RTVs e revendas</td><td>Visitas, despesas da equipe, relatórios com geolocalização</td></tr>
+          <tr><td><b>A2W Sales Agro</b></td><td>Indústria e distribuição</td><td>Planejamento comercial, metas, indicadores, integração com ERPs. Parceiro SAP</td></tr>
+          <tr><td><b>AgroReceita CRM</b></td><td>Revendas, agrônomos</td><td>CRM junto ao receituário agronômico</td></tr>
+          <tr><td><b>AgroCore</b></td><td>Revendas e consultores</td><td>App de campo 100% offline</td></tr>
+          <tr><td><b>Allure</b></td><td>Revendas</td><td>Registro rápido de visitas, offline</td></tr>
+          <tr><td><b>Multidados, Agronoss</b></td><td>Revendas, distribuidores</td><td>CRM com pós-venda (Multidados); CRM + pedidos + estoque + financeiro (Agronoss)</td></tr>
+        </tbody>
+      </table></div>
+      <h3>2 · IA por áudio e WhatsApp (os mais próximos da sua ideia)</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Produto</th><th>Para quem</th><th>O que oferece</th></tr></thead>
+        <tbody>
+          <tr><td><b>Noctua</b></td><td>Distribuidores, revendas, indústria, RTVs, consultores</td><td>O áudio enviado pelo WhatsApp atualiza o CRM. A IA resume a visita, aponta riscos e oportunidades e sugere os próximos passos. <strong>É o concorrente mais direto.</strong></td></tr>
+          <tr><td><b>ManejeBem</b></td><td>Técnicos de campo e gestores</td><td>Áudio após a visita técnica vira relatório para o gestor</td></tr>
+          <tr><td><b>Impactools AgroAssist</b></td><td>Equipes de campo</td><td>Registro de visitas pelo WhatsApp, sem app</td></tr>
+          <tr><td>FieldData, Cropwise Balance (Syngenta)</td><td>Fazendas e produtores</td><td>Gestão da fazenda por áudio. Não é CRM comercial</td></tr>
+        </tbody>
+      </table></div>
+      <h3>3 · CRMs genéricos</h3>
+      <p><b>Agendor</b> (brasileiro, já registra visitas por áudio no WhatsApp com a assistente Ava), <b>RD Station CRM</b>, <b>Pipedrive</b>, <b>Ploomes</b> (com conteúdo voltado ao agro) e <b>Salesforce</b>, usado por indústrias como a Nufarm para acompanhar representantes por região.</p>
+      <h3>4 · ERPs das revendas</h3>
+      <p><b>Siagri</b> e <b>Agrotis</b> dominam a gestão das revendas e têm módulos comerciais e CRM. A revenda que já usa um deles tende a preferir o módulo do próprio ERP. Portanto, integrar com eles é necessário na venda para equipes, não opcional.</p>
+    </section>
+
+    <section id="m-precos">
+      <div class="eyebrow">Referências de preço</div>
+      <h2>Preços praticados</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Produto</th><th>Preço público encontrado</th></tr></thead>
+        <tbody>
+          <tr><td>Agendor (genérico)</td><td class="num">Pro R$ 59 · Performance R$ 83 por usuário/mês (R$ 53,10 e R$ 74,70 no anual)</td></tr>
+          <tr><td>AgroReceita CRM</td><td class="num">R$ 99,90 por usuário/mês · R$ 79,90 no anual</td></tr>
+          <tr><td>AgroCore</td><td class="num">R$ 79/mês (1 usuário) · R$ 299/mês (até 5 usuários)</td></tr>
+          <tr><td>Pipedrive (genérico)</td><td class="num">US$ 14 a 79 por usuário/mês</td></tr>
+          <tr><td>RD Station CRM</td><td class="num">gratuito até 4 usuários; planos pagos sob consulta</td></tr>
+          <tr><td>AgroRota, Rural Rota, Noctua, A2W, Voraz, Siagri, Agrotis</td><td>não publicam preço (sob consulta)</td></tr>
+        </tbody>
+      </table></div>
+      <p>A faixa de R$ 59 a R$ 100 por usuário/mês está consolidada. A hipótese do plano (R$ 59–89 individual) está alinhada ao mercado. Cobrar abaixo de R$ 50 não seria um diferencial, só reduziria a margem, porque o custo de IA é por uso.</p>
+    </section>
+
+    <section id="m-lacunas">
+      <div class="eyebrow">Onde há espaço</div>
+      <h2>Lacunas e posicionamento</h2>
+      <p>A maioria dos concorrentes foi feita para <strong>o vendedor que tira pedido na revenda</strong>: rota, orçamento, pedido, pós-venda, integração com ERP. Os que usam IA por áudio são centrados no WhatsApp e vendem para a empresa. Ficam quatro espaços menos atendidos:</p>
+      <ul>
+        <li><strong>Geração de demanda e relacionamento com o canal.</strong> Quem trabalha com influência e não com pedido: relacionamento com balconistas, gerentes e agrônomos de revendas, campos demonstrativos, dias de campo, ensaios e posicionamento de híbridos. Nenhum concorrente encontrado se posiciona aqui com clareza, e essa é exatamente a sua experiência.</li>
+        <li><strong>Indústrias regionais e médias</strong> (sementes, biológicos, nutrição) com 10 a 50 RTVs, que não têm Salesforce e não querem um projeto de implantação.</li>
+        <li><strong>O profissional como cliente.</strong> Quase todos vendem para a empresa. Um produto que o próprio profissional adota em 5 minutos pode entrar nas empresas de baixo para cima.</li>
+        <li><strong>Relatório mensal pronto.</strong> Os concorrentes falam em relatórios e painéis. Nenhum destaca o fechamento do mês que o profissional entrega ao gestor.</li>
+      </ul>
+      <div class="callout"><b>Posicionamento sugerido</b>"O CRM de quem gera demanda no agro: relacionamento com o canal, campos e dias de campo, registrados por voz, com o relatório do mês pronto." Isso torna o Módulo 4 (atividades de campo) mais importante do que eu tinha previsto. Uma versão simples dele deveria entrar no MVP.</div>
+    </section>
+
+    <section id="m-plano">
+      <div class="eyebrow">Ajustes</div>
+      <h2>O que muda no plano</h2>
+      <ul>
+        <li><strong>Voz com IA deixa de ser diferencial e passa a ser requisito mínimo.</strong> Noctua, ManejeBem e Agendor já fazem. O diferencial precisa vir do foco em geração de demanda e da profundidade no setor.</li>
+        <li><strong>Campos demonstrativos e dias de campo sobem para o MVP</strong>, em versão simples: local, produtor, híbridos, participantes, fotos e avaliação.</li>
+        <li><strong>Considerar o WhatsApp como porta de entrada do áudio</strong>, já que os concorrentes de IA usam esse caminho. Vale testar na fase concierge se o usuário prefere o app ou o WhatsApp.</li>
+        <li><strong>Público B2B prioritário:</strong> indústrias regionais e médias, além das revendas.</li>
+        <li><strong>Nas entrevistas, pergunte sempre</strong> quais destas ferramentas a pessoa já testou ou usa, e por que parou de usar.</li>
+        <li><strong>Teste os concorrentes por dentro:</strong> crie contas de avaliação no Noctua, AgroRota, Rural Rota e Agendor antes de definir o MVP final.</li>
+      </ul>
+    </section>
+
+    <section id="m-fontes">
+      <div class="eyebrow">Transparência</div>
+      <h2>Fontes e limites desta pesquisa</h2>
+      <p><strong>Limites:</strong> as páginas dos concorrentes agro estavam bloqueadas para leitura direta neste ambiente. Os recursos listados vêm dos trechos indexados pela busca e das lojas de aplicativos, não de testes nos produtos. Preços podem ter mudado. O número de agrônomos é de 2018. O dimensionamento por canal usa hipóteses minhas.</p>
+      <ul style="font-size:13.5px">
+        <li><a href="https://www.agrolink.com.br/noticias/empresas-de-distribuicao-de-insumos-agropecuarios-associadas-a-andav-faturaram-r--167-bilhoes-em-2024_504737.html" target="_blank" rel="noopener">Agrolink · Andav: R$ 167 bi em 2024</a></li>
+        <li><a href="https://agrorevenda.com.br/revista/distribuidores-apostam-no-brasil/" target="_blank" rel="noopener">AgroRevenda · número de associadas Andav</a></li>
+        <li><a href="https://periodicos.fgv.br/agroanalysis/article/download/78218/74927/164157" target="_blank" rel="noopener">FGV Agroanalysis · desafios na distribuição de insumos</a></li>
+        <li><a href="https://www.folhavitoria.com.br/folha-business/com-1-179-estabelecimentos-agro-e-o-setor-com-mais-cooperativas-no-pais/" target="_blank" rel="noopener">Folha Vitória · Anuário OCB 2024</a></li>
+        <li><a href="https://www.sicoob.com.br/web/sicoobcentralscrs/noticias/-/asset_publisher/xAioIawpOI5S/content/id/284025740" target="_blank" rel="noopener">Sicoob · OCB: cooperativas agro movimentam R$ 438 bi</a></li>
+        <li><a href="https://www.confea.org.br/sites/default/files/antigos/Relatorio_Reuniao_CCEAGRO_Qualidade_Ensino.pdf" target="_blank" rel="noopener">Confea · relatório CCEAGRO (agrônomos registrados)</a></li>
+        <li><a href="https://biblioteca.ibge.gov.br/visualizacao/periodicos/3096/agro_2017_estabelecimentos_agropecuarios.pdf" target="_blank" rel="noopener">IBGE · Censo Agro 2017</a></li>
+        <li><a href="https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/1184214/1/Radar-Agtech-Brasil-2024.pdf" target="_blank" rel="noopener">Embrapa · Radar Agtech Brasil 2024</a></li>
+        <li><a href="https://www.marketsandmarkets.com/market-reports/farm-management-software-market-217016636.html" target="_blank" rel="noopener">MarketsandMarkets · software de gestão de fazendas</a></li>
+        <li><a href="https://equipe.agr.br/" target="_blank" rel="noopener">AgroRota</a> · <a href="https://ruralrota.com.br/" target="_blank" rel="noopener">Rural Rota</a> · <a href="https://apps.apple.com/us/app/rural-rota-crm-agro-para-rtv/id6738670100" target="_blank" rel="noopener">Rural Rota (App Store)</a></li>
+        <li><a href="https://www.voraztecnologia.com/como-otimizar-o-relacionamento-do-seu-rtv-com-o-cliente/" target="_blank" rel="noopener">Voraz</a> · <a href="https://apps.apple.com/us/app/id1669559446" target="_blank" rel="noopener">Voraz (App Store)</a> · <a href="https://multidadosti.com.br/segmento-agro/" target="_blank" rel="noopener">Multidados</a> · <a href="https://agroacademy.com.br/melhores-ferramentas-crm-agronegocio/" target="_blank" rel="noopener">AgroAcademy (Agronoss)</a></li>
+        <li><a href="https://www.sap.com/latvia/products/technology-platform/partners/a2w-tecnologia-e-inovaes-ltda-a2w-sales-agro.html" target="_blank" rel="noopener">A2W Sales Agro (SAP)</a> · <a href="https://www.agrolink.com.br/noticias/a2w-expande-parcerias-no-congresso-andav-2024_493775.html" target="_blank" rel="noopener">A2W na Andav 2024</a></li>
+        <li><a href="https://agroreceita.com.br/crm/" target="_blank" rel="noopener">AgroReceita CRM</a> · <a href="https://agrocore.vercel.app/" target="_blank" rel="noopener">AgroCore</a> · <a href="https://allure.agr.br/revenda/" target="_blank" rel="noopener">Allure</a></li>
+        <li><a href="https://noctua.agr.br/" target="_blank" rel="noopener">Noctua</a> · <a href="https://manejebem.com/inteligencia-artificial-via-whatsapp-para-agricultura/" target="_blank" rel="noopener">ManejeBem</a> · <a href="https://itshow.com.br/inteligencia-artificial-whatsapp-gestao-agro-brasil/" target="_blank" rel="noopener">IT Show (FieldData)</a> · <a href="https://coletivo.tech/noticias/inteligencia-artificial-no-agronegocio-syngenta/" target="_blank" rel="noopener">Coletivo Tech (Syngenta)</a></li>
+        <li><a href="https://www.agendor.com.br/planos-precos/crm" target="_blank" rel="noopener">Agendor · preços</a> · <a href="https://www.agendor.com.br/blog/crm-ia/" target="_blank" rel="noopener">Agendor · CRM com IA</a> · <a href="https://www.rdstation.com/en/crm/" target="_blank" rel="noopener">RD Station CRM</a> · <a href="https://www.pipedrive.com/pt/crm-comparison/rdstationcrm" target="_blank" rel="noopener">Pipedrive</a></li>
+        <li><a href="https://blog.ploomes.com/crm-no-agro/" target="_blank" rel="noopener">Ploomes · CRM no agro</a> · <a href="https://www.salesforce.com/br/customer-stories/nufarm/" target="_blank" rel="noopener">Salesforce · caso Nufarm</a> · <a href="https://addit.com.br/en/siagri-cloud/" target="_blank" rel="noopener">Siagri</a> · <a href="https://agrotis.com/en" target="_blank" rel="noopener">Agrotis</a></li>
+      </ul>
+    </section>
+  </article>
+</main>
+
+<!-- ======================= PROTÓTIPO ======================= -->
+<main id="v-prototipo" class="wrap proto" hidden>
+  <div class="proto-notes">
+    <div class="eyebrow">Protótipo navegável · dados de exemplo</div>
+    <h1>Uma terça-feira de safrinha</h1>
+    <p>Toque nas telas como se fosse o app. Os clientes e números são fictícios. O registro por voz é simulado: ele mostra o que a IA devolveria a partir do áudio de exemplo do projeto.</p>
+    <div class="tour">
+      <button type="button" data-tour="hoje"><span>1</span><span><b>Abrir o app de manhã</b><small>O que fazer hoje e quem precisa de atenção.</small></span></button>
+      <button type="button" data-tour="ficha"><span>2</span><span><b>Antes da visita na Cooperativa Alfa</b><small>Ficha, contatos e o que aconteceu da última vez.</small></span></button>
+      <button type="button" data-tour="gravar"><span>3</span><span><b>Depois da visita, ainda na caminhonete</b><small>Grave o áudio. A IA organiza, você confirma.</small></span></button>
+      <button type="button" data-tour="funil"><span>4</span><span><b>Ver as oportunidades</b><small>Funil por etapa, em sacos.</small></span></button>
+      <button type="button" data-tour="agenda"><span>5</span><span><b>Planejar a semana</b><small>Agenda junto com o Google.</small></span></button>
+    </div>
+  </div>
+
+  <div class="phone" role="region" aria-label="Protótipo do aplicativo">
+    <div class="ph-status"><span>07:42</span><span id="sync">● sincronizado</span></div>
+    <div class="screen" id="screen"></div>
+    <nav class="nav" aria-label="Navegação do app">
+      <button type="button" data-nav="hoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>Hoje</button>
+      <button type="button" data-nav="clientes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5c2 .6 3.2 2.6 3.5 5.5"/></svg>Clientes</button>
+      <button type="button" data-nav="mais" class="fab" aria-label="Registrar"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></button>
+      <button type="button" data-nav="funil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>Funil</button>
+      <button type="button" data-nav="agenda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Agenda</button>
+    </nav>
+    <div class="toast" id="toast" role="status"></div>
+    <div id="sheet"></div>
+  </div>
+</main>
+
+<script>
+(function(){
+/* ---------- Dados de exemplo (fictícios) ---------- */
+const D = {
+  clientes:[
+    {id:'alfa',nome:'Cooperativa Alfa',tipo:'Cooperativa',cidade:'Chapecó/SC',regiao:'Oeste SC',status:'ativo',ini:'CA',ult:'há 21 dias',
+      contatos:[{n:'Marcos Bortolini',f:'Gerente comercial',t:'(49) 9 9912-3304'},{n:'Ana Paula Zanella',f:'Agrônoma',t:'(49) 9 9840-1122'},{n:'Diego Lima',f:'Balconista',t:'(49) 9 9133-7781'}],
+      tl:[
+        {d:'03 nov',t:'Visita · Apresentação de portfólio safrinha',p:'Marcos pediu comparativo de ensaios da região. Interesse em híbridos precoces.'},
+        {d:'21 out',t:'Ligação · Ana Paula',p:'Confirmou 3 produtores para o dia de campo de janeiro.'},
+        {d:'08 out',t:'Dia de campo · Linha São Pedro',p:'42 participantes. Fotos e avaliação de estande registradas.'}
+      ]},
+    {id:'bj',nome:'Agropecuária Bom Jesus',tipo:'Revenda',cidade:'Xanxerê/SC',regiao:'Oeste SC',status:'ativo',ini:'BJ',ult:'há 9 dias',contatos:[{n:'Cláudia Reis',f:'Proprietária',t:'(49) 9 9901-4410'}],tl:[{d:'16 nov',t:'Visita · Treinamento de balcão',p:'Treinamento com 4 balconistas sobre posicionamento.'}]},
+    {id:'cv',nome:'Revenda Campo Verde',tipo:'Revenda',cidade:'Pato Branco/PR',regiao:'Sudoeste PR',status:'ativo',ini:'CV',ult:'há 52 dias',contatos:[{n:'Rogério Fank',f:'Gerente',t:'(46) 9 9921-0034'}],tl:[{d:'04 out',t:'Reunião · Plano de safra',p:'Definida meta de 1.800 sc para a safra de verão.'}]},
+    {id:'jb',nome:'João Baretta',tipo:'Produtor · 380 ha',cidade:'Xaxim/SC',regiao:'Oeste SC',status:'potencial',ini:'JB',ult:'há 47 dias',contatos:[{n:'João Baretta',f:'Produtor',t:'(49) 9 9877-5560'}],tl:[{d:'09 out',t:'Visita · Lavoura',p:'Planta híbrido concorrente. Aberto a testar área de 20 ha.'}]},
+    {id:'sl',nome:'Coop. Santa Luzia',tipo:'Cooperativa',cidade:'Concórdia/SC',regiao:'Oeste SC',status:'ativo',ini:'SL',ult:'há 4 dias',contatos:[{n:'Paulo Hendges',f:'Coordenador técnico',t:'(49) 9 9300-2211'}],tl:[{d:'21 nov',t:'Reunião · Resultados de ensaio',p:'Apresentados dados de 6 locais.'}]},
+    {id:'ag',nome:'AgroSul Insumos',tipo:'Revenda',cidade:'Erechim/RS',regiao:'Norte RS',status:'inativo',ini:'AS',ult:'há 4 meses',contatos:[{n:'Felipe Tonin',f:'Vendedor',t:'(54) 9 9655-0098'}],tl:[{d:'28 jul',t:'Visita',p:'Sem compras nesta safra.'}]}
+  ],
+  tarefas:[
+    {id:1,t:'Enviar tabela de preços à Bom Jesus',c:'bj',late:true,done:false},
+    {id:2,t:'Confirmar área de teste com João Baretta',c:'jb',late:false,done:false},
+    {id:3,t:'Separar fotos do dia de campo',c:'alfa',late:false,done:true}
+  ],
+  agenda:{
+    25:[{h:'08:30',t:'Visita · Cooperativa Alfa',c:'alfa',s:'Chapecó · com Marcos'},{h:'14:00',t:'Reunião · Agropecuária Bom Jesus',c:'bj',s:'Xanxerê'},{h:'17:30',t:'Dentista',ext:true,s:'Google Agenda'}],
+    26:[{h:'09:00',t:'Visita · Revenda Campo Verde',c:'cv',s:'Pato Branco'}],
+    27:[{h:'10:00',t:'Reunião regional da equipe',ext:true,s:'Google Agenda · Meet'}],
+    28:[{h:'08:00',t:'Avaliação de campo · Linha São Pedro',c:'alfa',s:'Vitrine de híbridos'}],
+    1:[],2:[],3:[]
+  },
+  funil:[
+    {e:'Prospecção',ops:[{c:'João Baretta',p:'Teste 20 ha',v:65}]},
+    {e:'Apresentação',ops:[{c:'Coop. Santa Luzia',p:'Safra verão',v:900},{c:'Revenda Campo Verde',p:'Safrinha',v:450}]},
+    {e:'Negociação',ops:[{c:'Agropecuária Bom Jesus',p:'Safra verão',v:1200}]},
+    {e:'Fechado',ops:[{c:'Coop. Santa Luzia',p:'Safrinha',v:600}]}
+  ]
+};
+let state = {tela:'hoje', cliente:null, filtro:'Todos', dia:25, busca:''};
+const $ = s => document.querySelector(s);
+const scr = $('#screen');
+const C = id => D.clientes.find(c=>c.id===id);
+const esc = s => String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const sc = n => n.toLocaleString('pt-BR')+' sc';
+
+const icoAlert='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17v.5"/></svg>';
+const icoCake='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21h16M5 21v-8h14v8M12 13V9M12 6v-.5"/></svg>';
+
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600)}
+
+/* ---------- Telas ---------- */
+function hoje(){
+  const ev=D.agenda[25];
+  const sem=D.clientes.filter(c=>/52|47|meses/.test(c.ult));
+  const abertas=D.funil.slice(0,3).reduce((a,s)=>a+s.ops.reduce((x,o)=>x+o.v,0),0);
+  return `
+  <div class="s-h"><div><small>Terça, 25 de novembro</small><h2>Bom dia</h2></div><span class="av c">EU</span></div>
+  <div class="kpis">
+    <div class="kpi"><b>18</b><span>visitas em novembro · meta 24</span></div>
+    <div class="kpi"><b>${(abertas/1000).toFixed(1).replace('.',',')} mil</b><span>sacos em negociação</span></div>
+    <div class="kpi warn"><b>${sem.length}</b><span>clientes sem visita há +45 dias</span></div>
+  </div>
+  <div class="lbl">Agenda de hoje <a data-go="agenda">ver semana</a></div>
+  <div class="list">${ev.map(e=>`<button type="button" class="row ${e.ext?'ext':''}" ${e.c?`data-cli="${e.c}"`:''}><span class="t">${e.h}</span><span class="m"><b>${esc(e.t)}</b><small>${esc(e.s)}</small></span>${e.ext?'<span class="tag y">Google</span>':''}</button>`).join('')}</div>
+  <div class="lbl">Precisa de atenção</div>
+  ${sem.map(c=>`<div class="alert">${icoAlert}<div><b>${esc(c.nome)}</b>Última visita ${c.ult}. ${c.status==='potencial'?'Oportunidade de teste em aberto.':'Cliente ativo em '+esc(c.regiao)+'.'}</div></div>`).join('')}
+  <div class="alert">${icoCake}<div><b>Aniversário amanhã</b>Ana Paula Zanella · agrônoma da Cooperativa Alfa</div></div>
+  <div class="lbl">Tarefas</div>
+  <div class="list" id="tasks">${tarefasHtml()}</div>`;
+}
+function tarefasHtml(){
+  return D.tarefas.map(t=>`<button type="button" class="row ${t.done?'done':''}" data-task="${t.id}"><span class="chk">${t.done?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--bg)" stroke-width="4"><path d="m5 12 5 5 9-10"/></svg>':''}</span><span class="m"><b>${esc(t.t)}</b><small>${esc(C(t.c).nome)}${t.novo?' · criada pela IA':''}</small></span>${t.late&&!t.done?'<span class="tag late">atrasada</span>':''}${t.novo?'<span class="tag g">nova</span>':''}</button>`).join('');
+}
+function clientes(){
+  const f=state.filtro, q=state.busca.toLowerCase();
+  const lista=D.clientes.filter(c=>(f==='Todos'||c.status===f.toLowerCase()||c.regiao===f)&&(!q||(c.nome+c.cidade+c.contatos.map(x=>x.n).join(' ')).toLowerCase().includes(q)));
+  return `
+  <div class="s-h"><h2>Clientes</h2><small>${D.clientes.length} na carteira</small></div>
+  <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="busca" type="search" placeholder="Buscar cliente, cidade ou contato" value="${esc(state.busca)}"></label>
+  <div class="chips">${['Todos','Ativo','Potencial','Inativo','Oeste SC','Sudoeste PR'].map(x=>`<button type="button" data-f="${x}" aria-pressed="${x===f}">${x}</button>`).join('')}</div>
+  <div class="list">${lista.map(c=>`<button type="button" class="row" data-cli="${c.id}"><span class="av ${c.status==='potencial'?'c':''}">${c.ini}</span><span class="m"><b>${esc(c.nome)}</b><small>${esc(c.tipo)} · ${esc(c.cidade)}</small></span><span class="tag ${/52|47|meses/.test(c.ult)?'late':'g'}">${c.ult}</span></button>`).join('')||'<div class="row"><span class="m"><small>Nenhum cliente encontrado.</small></span></div>'}</div>`;
+}
+function ficha(){
+  const c=C(state.cliente);
+  const ops=D.funil.flatMap(s=>s.ops.filter(o=>o.c===c.nome).map(o=>({...o,e:s.e})));
+  return `
+  <button type="button" class="back" data-go="clientes">‹ Clientes</button>
+  <div class="card-h">
+    <h2>${esc(c.nome)}</h2><div class="sub">${esc(c.tipo)} · ${esc(c.cidade)} · ${esc(c.regiao)}</div>
+    <div class="facts"><div><small>Última visita</small><b>${c.ult}</b></div><div><small>Em negociação</small><b>${ops.length?sc(ops.reduce((a,o)=>a+o.v,0)):'—'}</b></div></div>
+    <div class="acts">
+      <button type="button" data-go="gravar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Registrar</button>
+      <button type="button" data-toast="Abriria o WhatsApp do contato"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/></svg>WhatsApp</button>
+      <button type="button" data-toast="Abriria a ligação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>Ligar</button>
+      <button type="button" data-toast="Abriria o mapa com a rota"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Rota</button>
+    </div>
+  </div>
+  <div class="lbl">Contatos</div>
+  <div class="list">${c.contatos.map(p=>`<div class="row"><span class="av">${p.n.split(' ').map(x=>x[0]).slice(0,2).join('')}</span><span class="m"><b>${esc(p.n)}</b><small>${esc(p.f)} · ${esc(p.t)}</small></span></div>`).join('')}</div>
+  ${ops.length?`<div class="lbl">Oportunidades</div><div class="list">${ops.map(o=>`<div class="row"><span class="m"><b>${esc(o.p)}</b><small>${esc(o.e)}</small></span><span class="tag y">${sc(o.v)}</span></div>`).join('')}</div>`:''}
+  <div class="lbl">Linha do tempo</div>
+  <div class="tl">${c.tl.map(e=>`<div class="ev ${e.novo?'new':''}"><small>${e.d}</small><b>${esc(e.t)}</b><p>${esc(e.p)}</p></div>`).join('')}</div>`;
+}
+const AUDIO='"Visitei a Cooperativa Alfa. Conversei com o gerente comercial. Temos oportunidade de trabalhar o DKB358PRO4 na safrinha. Preciso retornar na próxima semana com os resultados dos ensaios."';
+function gravar(){
+  return `
+  <button type="button" class="back" data-go="${state.cliente?'ficha':'hoje'}">‹ Voltar</button>
+  <div class="s-h"><h2>Registrar visita</h2></div>
+  <div class="rec">
+    <p>Fale como se estivesse mandando um áudio. Funciona sem sinal: o áudio fica salvo e é processado depois.</p>
+    <button type="button" class="mic" id="mic" aria-label="Gravar áudio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <div class="timer" id="timer">0:00</div>
+    <p id="rec-hint">Toque para gravar</p>
+    <div class="alt"><button type="button" data-toast="Abriria um campo de texto rápido">Digitar</button><button type="button" data-toast="Abriria a câmera">Foto</button></div>
+  </div>`;
+}
+function revisar(){
+  const fs=[['Cliente','Cooperativa Alfa'],['Contato','Marcos Bortolini (gerente comercial)'],['Tipo','Visita'],['Assunto','Posicionamento comercial'],['Produto','DKB358PRO4'],['Oportunidade','Safrinha 2027'],['Próxima ação','Apresentar resultados dos ensaios'],['Prazo','02/12 (próxima semana)']];
+  return `
+  <button type="button" class="back" data-go="gravar">‹ Gravar de novo</button>
+  <div class="s-h"><h2>Confira e salve</h2></div>
+  <div class="quote">${AUDIO}</div>
+  <div class="ai"><div class="ai-h"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z"/></svg>Organizado pela IA · edite o que precisar</div>
+    ${fs.map((f,i)=>`<div class="fld"><label for="f${i}">${f[0]}</label><input id="f${i}" value="${esc(f[1])}"></div>`).join('')}
+  </div>
+  <div class="lbl">Criar também</div>
+  <div class="sugg">
+    <label><input type="checkbox" id="s1" checked><span><b>Tarefa:</b> apresentar resultados dos ensaios à Cooperativa Alfa até 02/12</span></label>
+    <label><input type="checkbox" id="s2" checked><span><b>Oportunidade:</b> DKB358PRO4 · safrinha · etapa Apresentação (volume a definir)</span></label>
+    <label><input type="checkbox" id="s3"><span><b>Agenda:</b> retorno na Cooperativa Alfa em 02/12, enviar ao Google</span></label>
+  </div>
+  <button type="button" class="btn" id="salvar">Salvar na ficha da Cooperativa Alfa</button>
+  <button type="button" class="btn ghost" data-go="hoje">Descartar</button>`;
+}
+function funil(){
+  const tot=D.funil.reduce((a,s)=>a+s.ops.reduce((x,o)=>x+o.v,0),0);
+  return `
+  <div class="s-h"><div><small>Safra 2026/27 · todos os produtos</small><h2>Funil</h2></div></div>
+  <div class="kpis" style="grid-template-columns:1fr 1fr">
+    <div class="kpi"><b>${sc(tot-D.funil[3].ops.reduce((a,o)=>a+o.v,0))}</b><span>em aberto</span></div>
+    <div class="kpi"><b>${sc(D.funil[3].ops.reduce((a,o)=>a+o.v,0))}</b><span>fechado na safra</span></div>
+  </div>
+  <div class="funnel">${D.funil.map(s=>{const v=s.ops.reduce((a,o)=>a+o.v,0);return `<div class="stage"><div class="stage-h"><b>${s.e}</b><span>${s.ops.length} · ${sc(v)}</span></div><div class="bar"><i style="width:${Math.max(4,v/tot*100)}%"></i></div>${s.ops.map(o=>`<div class="opp"><span>${esc(o.c)} · ${esc(o.p)}${o.novo?' <span class="tag g">nova</span>':''}</span><span>${o.v?sc(o.v):'a definir'}</span></div>`).join('')}</div>`}).join('')}</div>
+  <div class="lbl">Perdidas na safra</div>
+  <div class="list"><div class="row"><span class="m"><b>AgroSul Insumos · safra verão</b><small>Motivo: preço do concorrente</small></span><span class="tag late">800 sc</span></div></div>`;
+}
+function agenda(){
+  const dias=[[25,'ter'],[26,'qua'],[27,'qui'],[28,'sex'],[1,'seg'],[2,'ter'],[3,'qua']];
+  const ev=D.agenda[state.dia]||[];
+  return `
+  <div class="s-h"><div><small>Novembro · dezembro</small><h2>Agenda</h2></div></div>
+  <div class="gsync"><i></i>Google Agenda conectado · eventos do CRM são enviados automaticamente</div>
+  <div class="week">${dias.map(([d,w])=>`<button type="button" data-dia="${d}" aria-pressed="${d===state.dia}">${w}<b>${d}</b>${(D.agenda[d]||[]).length?'<i></i>':''}</button>`).join('')}</div>
+  <div class="list">${ev.length?ev.map(e=>`<button type="button" class="row ${e.ext?'ext':''}" ${e.c?`data-cli="${e.c}"`:''}><span class="t">${e.h}</span><span class="m"><b>${esc(e.t)}</b><small>${esc(e.s)}</small></span>${e.ext?'<span class="tag y">Google</span>':(e.novo?'<span class="tag g">nova</span>':'')}</button>`).join(''):'<div class="row"><span class="m"><b>Dia livre</b><small>Sugestão: Revenda Campo Verde está há 52 dias sem visita.</small></span></div>'}</div>
+  <button type="button" class="btn" data-toast="Abriria o agendamento rápido: cliente, dia e hora">Agendar compromisso</button>`;
+}
+const T={hoje,clientes,ficha,gravar,revisar,funil,agenda};
+
+function render(){
+  scr.innerHTML=T[state.tela]();
+  scr.scrollTop=0;
+  const navKey={ficha:'clientes',gravar:'mais',revisar:'mais'}[state.tela]||state.tela;
+  document.querySelectorAll('.nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.nav===navKey));
+  if(state.tela==='clientes'){const i=$('#busca');i.addEventListener('input',e=>{state.busca=e.target.value;const pos=e.target.selectionStart;render();const n=$('#busca');n.focus();n.setSelectionRange(pos,pos)})}
+}
+function go(t,extra){Object.assign(state,{tela:t},extra||{});closeSheet();render()}
+
+/* ---------- Gravação simulada ---------- */
+let recT=null;
+function toggleMic(){
+  const m=$('#mic'); if(!m) return;
+  if(recT){clearInterval(recT);recT=null;$('#rec-hint').textContent='Organizando…';setTimeout(()=>go('revisar'),900);return}
+  m.classList.add('on');$('#rec-hint').textContent='Gravando · toque para parar';let s=0;
+  recT=setInterval(()=>{s++;const el=$('#timer');if(!el){clearInterval(recT);recT=null;return}el.textContent='0:'+String(s).padStart(2,'0');if(s>=14){toggleMic()}},180);
+}
+function salvar(){
+  const c=C('alfa');
+  const v=id=>$('#'+id).value;
+  if(!c.tl[0].novo) c.tl.unshift({d:'25 nov',t:'Visita · '+v('f3'),p:`Com ${v('f1')}. Produto: ${v('f4')} (${v('f5')}). Próximo passo: ${v('f6')} até ${v('f7').split(' ')[0]}.`,novo:true});
+  c.ult='hoje';
+  if($('#s1').checked && !D.tarefas.find(t=>t.novo)) D.tarefas.unshift({id:9,t:'Apresentar resultados dos ensaios',c:'alfa',novo:true,done:false});
+  if($('#s2').checked && !D.funil[1].ops.find(o=>o.novo)) D.funil[1].ops.unshift({c:'Cooperativa Alfa',p:v('f4')+' · safrinha',v:0,novo:true});
+  if($('#s3').checked && !D.agenda[2].length) D.agenda[2].push({h:'09:00',t:'Retorno · Cooperativa Alfa',c:'alfa',s:'Resultados dos ensaios · enviado ao Google',novo:true});
+  go('ficha',{cliente:'alfa'});
+  toast('Visita salva na linha do tempo da Cooperativa Alfa');
+}
+
+/* ---------- Folha do botão + ---------- */
+function openSheet(){
+  $('#sheet').innerHTML=`<div class="sheet-bg" id="sheet-bg"><div class="sheet" role="dialog" aria-label="Registrar"><h3>O que você quer registrar?</h3><div class="sheet-g">
+  <button type="button" class="main" data-go="gravar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Visita por voz</button>
+  <button type="button" data-toast="Cadastro rápido: nome e telefone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="8" r="4"/><path d="M3 21c1-4 4-6 7-6M18 14v6M15 17h6"/></svg>Cliente</button>
+  <button type="button" data-toast="Nova oportunidade: cliente, produto, sacos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg>Oportunidade</button>
+  <button type="button" data-toast="Agendar: cliente, dia e hora"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Compromisso</button>
+  <button type="button" data-toast="Tarefa rápida com prazo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg>Tarefa</button>
+  <button type="button" data-toast="Relatório de novembro sendo gerado em PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M9 13h6M9 17h6M14 3v5h5"/></svg>Relatório do mês</button>
+  </div></div></div>`;
+}
+function closeSheet(){$('#sheet').innerHTML=''}
+
+/* ---------- Eventos ---------- */
+document.querySelector('.phone').addEventListener('click',e=>{
+  const b=e.target.closest('button,a,#sheet-bg'); if(!b) return;
+  if(b.id==='sheet-bg'){ if(e.target===b) closeSheet(); return }
+  if(b.dataset.nav){ if(b.dataset.nav==='mais') openSheet(); else go(b.dataset.nav,{cliente:null}); return }
+  if(b.dataset.go){ go(b.dataset.go); return }
+  if(b.dataset.cli){ go('ficha',{cliente:b.dataset.cli}); return }
+  if(b.dataset.f){ state.filtro=b.dataset.f; render(); return }
+  if(b.dataset.dia){ state.dia=+b.dataset.dia; render(); return }
+  if(b.dataset.task){ const t=D.tarefas.find(x=>x.id==b.dataset.task); t.done=!t.done; $('#tasks').innerHTML=tarefasHtml(); if(t.done) toast('Tarefa concluída'); return }
+  if(b.dataset.toast){ closeSheet(); toast(b.dataset.toast); return }
+  if(b.id==='mic'){ toggleMic(); return }
+  if(b.id==='salvar'){ salvar(); return }
+});
+document.querySelectorAll('[data-tour]').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.tour;
+  if(k==='ficha') go('ficha',{cliente:'alfa'}); else if(k==='gravar') go('gravar',{cliente:'alfa'}); else go(k,{cliente:null});
+  if(window.matchMedia('(max-width:860px)').matches) document.querySelector('.phone').scrollIntoView({behavior:'smooth',block:'start'});
+}));
+
+/* ---------- Abas da página ---------- */
+function route(){
+  const h=location.hash.slice(1);
+  const v=['prototipo','mercado'].includes(h)?h:'plano';
+  ['plano','mercado','prototipo'].forEach(k=>{
+    $('#v-'+k).hidden=v!==k;
+    $('#tab-'+k).setAttribute('aria-current',v===k?'page':'false');
+  });
+}
+window.addEventListener('hashchange',()=>{route();window.scrollTo(0,0)});
+document.querySelectorAll('[data-go^="s-"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();document.getElementById(a.dataset.go).scrollIntoView({behavior:'smooth'})}));
+route(); render();
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true});</script>
+</body>
+</html>
