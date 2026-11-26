@@ -8,7 +8,7 @@ O projeto está na **fase 0: estruturação e validação**. Ainda não existe o
 
 | Arquivo | Conteúdo |
 |---|---|
-| `prototipo/index.html` | Protótipo navegável da plataforma completa, com dados fictícios: Início (painel personalizável), Clientes e ficha, Visitas e registro por voz com IA, Oportunidades (funil em sacos), Campo (campos demonstrativos, dias de campo, concorrência), Agenda (dia, semana, mês e Google Agenda), Resultados, Assistente e Relatórios. Funciona no celular e no computador. |
+| `prototipo/index.html` | Protótipo navegável da plataforma completa, com dados fictícios: Início (painel personalizável), Clientes e ficha, Carteira por loja (clientes vinculados a cada loja ou unidade de cooperativas e revendas), Visitas e registro por voz com IA, Oportunidades (funil em sacos), Campo (campos demonstrativos, dias de campo, concorrência), Agenda (dia, semana, mês e Google Agenda), Resultados, Assistente e Relatórios. Funciona no celular e no computador. |
 | `prototipo/plano.html` | Plano do produto e pesquisa de mercado e concorrentes. |
 
 ## Resumo das decisões

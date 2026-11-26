@@ -332,6 +332,8 @@ textarea.inp{resize:vertical;min-height:80px}
 @media (prefers-reduced-motion: reduce){.toast{transition:none}}
 
 .bnav{display:none}
+.cart-l{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:16px;align-items:start}
+.cart-sel{display:none;width:100%;padding:10px 12px;font-size:15px}
 .muted{color:var(--muted)}
 .small{font-size:12.5px}
 .sp{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
@@ -355,6 +357,9 @@ textarea.inp{resize:vertical;min-height:80px}
   .g2,.g3{grid-template-columns:minmax(0,1fr)}
   .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
   .rk{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cart-l{grid-template-columns:minmax(0,1fr)}
+  .cart-list{display:none}
+  .cart-sel{display:block}
   .board{grid-template-columns:repeat(5,minmax(230px,82%));scroll-snap-type:x mandatory}
   .col{scroll-snap-align:start}
   .bnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--line);
@@ -452,6 +457,7 @@ const I={
   mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
   wa:'<path d="M4 20l1.3-4A8 8 0 1 1 8 19z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8a4 4 0 0 1-2-2l.8-1-1-2z"/>',
   back:'<path d="M15 5l-7 7 7 7"/>',
+  store:'<path d="M4 9l1.5-5h13L20 9"/><path d="M4 9h16v1.5a2.7 2.7 0 0 1-5.3 0 2.7 2.7 0 0 1-5.4 0 2.7 2.7 0 0 1-5.3 0z"/><path d="M5 12.5V20h14v-7.5M10 20v-4.5h4V20"/>',
   star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>'
 };
 const ic=(k,sw)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw||2}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
@@ -476,7 +482,7 @@ const D={
 clientes:[
  {id:'alfa',nome:'Cooperativa Alfa',tipo:'Cooperativa',cidade:'Chapecó/SC',regiao:'Oeste SC',segmento:'Canal',potencial:'Alto',status:'ativo',ult:21,area:'18.400 ha de milho na área de atuação',
   contatos:[{n:'Marcos Bortolini',f:'Gerente comercial',t:'(49) 9 9912-3304',e:'marcos@coopalfa.exemplo',aniv:'12-02'},{n:'Ana Paula Zanella',f:'Agrônoma',t:'(49) 9 9840-1122',e:'anapaula@coopalfa.exemplo',aniv:'11-28'},{n:'Diego Lima',f:'Balconista',t:'(49) 9 9133-7781',e:'',aniv:'03-14'}],
-  props:[{n:'Unidade Chapecó',a:'Matriz · 3 agrônomos',c:'Chapecó/SC'},{n:'Unidade Guatambu',a:'Loja + recebimento de grãos',c:'Guatambu/SC'}],
+  props:[],
   tl:[{d:'2026-11-04',k:'Visita',t:'Apresentação de portfólio safrinha',p:'Marcos pediu comparativo de ensaios da região. Interesse em híbridos precoces.',tags:['DKB358PRO4']},
       {d:'2026-10-21',k:'Ligação',t:'Ana Paula',p:'Confirmou 3 produtores para o dia de campo de janeiro.'},
       {d:'2026-10-08',k:'Dia de campo',t:'Linha São Pedro',p:'42 participantes. Fotos e avaliação de estande registradas.',tags:['3 fotos']},
@@ -577,11 +583,36 @@ relHist:[
  {t:'Visitas e atendimentos · setembro 2026',d:'2026-10-02',f:'Excel'},
  {t:'Campos e dias de campo · safra 26/27',d:'2026-10-10',f:'PDF'}
 ]};
+D.lojas=[
+ {id:'a1',canal:'alfa',nome:'Chapecó',obs:'Matriz'},{id:'a2',canal:'alfa',nome:'Águas de Chapecó'},{id:'a3',canal:'alfa',nome:'Guatambu'},{id:'a4',canal:'alfa',nome:'Caxambu do Sul'},
+ {id:'b1',canal:'bj',nome:'Xanxerê',obs:'Matriz'},{id:'b2',canal:'bj',nome:'Xaxim'},
+ {id:'v1',canal:'cv',nome:'Pato Branco',obs:'Matriz'},{id:'v2',canal:'cv',nome:'Vitorino'},
+ {id:'s1',canal:'sl',nome:'Concórdia',obs:'Matriz'},{id:'s2',canal:'sl',nome:'Seara'},
+ {id:'l1',canal:'lc',nome:'São Miguel do Oeste'},{id:'g1',canal:'ag',nome:'Erechim'}];
+const prod=(id,nome,cidade,ha,lojas,ult,pot,st,tel,tl)=>({id,nome,tipo:'Produtor',cidade,regiao:/PR$/.test(cidade)?'Sudoeste PR':'Oeste SC',segmento:'Produtor',potencial:pot,status:st,ult,area:ha+' ha · milho e soja',lojas,
+  contatos:[{n:nome,f:'Produtor',t:tel,e:'',aniv:''}],props:[{n:'Propriedade '+nome.split(' ').slice(-1)[0],a:ha+' ha',c:cidade}],tl});
+D.clientes.push(
+ prod('ld','Leonardo Dal Pizzol','Águas de Chapecó/SC',210,['a2'],12,'Médio','ativo','(49) 9 9812-4470',[{d:'2026-11-14',k:'Visita',t:'Lavoura de soja',p:'Vai plantar 120 ha de milho safrinha. Compra semente na Alfa de Águas de Chapecó.'}]),
+ prod('mf','Marli Ferreira','Águas de Chapecó/SC',140,['a2','a1'],30,'Médio','ativo','(49) 9 9820-1133',[{d:'2026-10-27',k:'Ligação',t:'Planejamento safrinha',p:'Compra parte na Alfa de Águas de Chapecó e parte na matriz.'}]),
+ prod('vr','Valdir Rossetto','Chapecó/SC',95,['a1'],13,'Baixo','ativo','(49) 9 9871-0021',[{d:'2026-11-12',k:'Campo',t:'Avaliação da vitrine',p:'Cedeu a área da vitrine Linha São Pedro.'}]),
+ prod('cw','Cristiano Weber','Guatambu/SC',320,['a3'],40,'Alto','ativo','(49) 9 9905-6612',[{d:'2026-10-16',k:'Visita',t:'Pós-plantio de soja',p:'Interesse em testar TL 310 VIP em 30 ha.'}]),
+ prod('at','Adriano Tomazi','Seara/SC',180,['s2'],70,'Médio','potencial','(49) 9 9930-4480',[{d:'2026-09-17',k:'Visita',t:'Primeiro contato',p:'Indicação da Santa Luzia de Seara.'}])
+);
+Object.entries({jb:['b2'],fm:['b1'],rk:['v1']}).forEach(([k,v])=>D.clientes.find(c=>c.id===k).lojas=v);
+D.opps.push({id:12,c:'ld',p:'DKB358PRO4',safra:'Safrinha 2027',sc:120,ha:120,etapa:'Negociação',prev:'2026-12-20'},{id:13,c:'cw',p:'TL 310 VIP',safra:'Safrinha 2027',sc:300,ha:290,etapa:'Apresentação',prev:'2027-01-15'});
 const META={visitasMes:24,scSafra:9000};
 const VIS_MES=[{m:'jun',v:19},{m:'jul',v:22},{m:'ago',v:25},{m:'set',v:21},{m:'out',v:23},{m:'nov',v:18,part:true}];
 const CART=[{m:'jun',v:22},{m:'jul',v:24},{m:'ago',v:25},{m:'set',v:27},{m:'out',v:28},{m:'nov',v:30}];
 const SHARE=[{r:'Oeste SC',v:18,meta:20},{r:'Sudoeste PR',v:11,meta:15},{r:'Extremo Oeste SC',v:9,meta:12},{r:'Norte RS',v:4,meta:10}];
 const cli=id=>D.clientes.find(c=>c.id===id);
+const loja=id=>D.lojas.find(l=>l.id===id);
+const curtoCanal=c=>c.nome.replace(/^(Cooperativa|Coop\.|Revenda|Agropecuária|Loja)\s+/i,'');
+const lojaNome=l=>curtoCanal(cli(l.canal))+' · '+l.nome;
+const daLoja=id=>D.clientes.filter(c=>(c.lojas||[]).includes(id));
+const canais=()=>D.clientes.filter(c=>D.lojas.some(l=>l.canal===c.id));
+const lojaOpts=sel=>canais().map(c=>`<optgroup label="${esc(c.nome)}">${D.lojas.filter(l=>l.canal===c.id).map(l=>`<option value="${l.id}" ${sel===l.id?'selected':''}>${esc(lojaNome(l))}</option>`).join('')}</optgroup>`).join('');
+const haDe=c=>{const m=/([\d.]+) ha/.exec(c.area);return m?+m[1].replace('.',''):0};
+const lojasTags=c=>(c.lojas||[]).map(id=>loja(id)).filter(Boolean).map(l=>`<a class="tag b" href="#loja-${l.id}" style="text-decoration:none">${ic('store').replace('<svg','<svg width="12" height="12"')}${esc(lojaNome(l))}</a>`).join('');
 const ini=n=>n.split(' ').filter(w=>w.length>2||/^[A-Z]/.test(w)).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 const avc=c=>c.tipo==='Produtor'?'c':c.tipo==='Cooperativa'?'':c.tipo==='Revenda'?'s':'g';
 const statusTag=s=>s==='ativo'?'<span class="tag g">Ativo</span>':s==='potencial'?'<span class="tag b">Potencial</span>':'<span class="tag">Inativo</span>';
@@ -591,21 +622,21 @@ const PROB={'Prospecção':.1,'Apresentação':.3,'Negociação':.6,'Fechada':1,
 const tarefaEstado=t=>t.done?'done':diff(fromIso(t.prazo))<0?'late':'pend';
 
 /* ================= Estado ================= */
-const S={filtroCli:'todos',regiao:'todas',tabFicha:'tl',funilSafra:'todas',funilModo:'funil',campoTab:'campos',agModo:'semana',agDia:iso(HOJE),tarefaF:'pend',modelo:'mensal',periodo:'mes',escopo:'individual',chat:[],dash:null,rec:null,offline:false,pendSync:0};
+const S={lojaF:'todas',lojaSel:'a2',filtroCli:'todos',regiao:'todas',tabFicha:'tl',funilSafra:'todas',funilModo:'funil',campoTab:'campos',agModo:'semana',agDia:iso(HOJE),tarefaF:'pend',modelo:'mensal',periodo:'mes',escopo:'individual',chat:[],dash:null,rec:null,offline:false,pendSync:0};
 const DASH_CARDS=[['kpis','Indicadores'],['atalhos','Atalhos rápidos'],['agenda','Próximos compromissos'],['atencao','Clientes que precisam de atenção'],['tarefas','Tarefas'],['funil','Oportunidades abertas'],['visitas','Visitas por mês'],['aniv','Aniversários']];
 try{const s=JSON.parse(localStorage.getItem('talhao-dash')||'null');if(s)S.dash=s}catch(e){}
 if(!S.dash)S.dash=Object.fromEntries(DASH_CARDS.map(([k])=>[k,true]));
 
 /* ================= Navegação ================= */
 const NAV=[
- ['inicio','Início','home'],['clientes','Clientes','users'],['visitas','Visitas','visit'],['oportunidades','Oportunidades','funnel'],
+ ['inicio','Início','home'],['clientes','Clientes','users'],['carteira','Carteira por loja','store'],['visitas','Visitas','visit'],['oportunidades','Oportunidades','funnel'],
  ['campo','Campo','field'],['agenda','Agenda','cal'],['inteligencia','Resultados','chart'],['assistente','Assistente','spark'],['relatorios','Relatórios','doc']];
 function navHtml(cur){
-  return NAV.map(([k,l,i],n)=>(n===6?'<div class="grp">Análise</div>':'')+`<a href="#${k}" ${cur===k?'aria-current="page"':''}>${ic(i)}${l}</a>`).join('');
+  return NAV.map(([k,l,i],n)=>(k==='inteligencia'?'<div class="grp">Análise</div>':'')+`<a href="#${k}" ${cur===k?'aria-current="page"':''}>${ic(i)}${l}</a>`).join('');
 }
 function bnavHtml(cur){
   const it=(k,l,i)=>`<a href="#${k}" ${cur===k?'aria-current="page"':''}>${ic(i)}${l}</a>`;
-  const inMore=['oportunidades','campo','inteligencia','assistente','relatorios','visitas'].includes(cur);
+  const inMore=['carteira','oportunidades','campo','inteligencia','assistente','relatorios','visitas'].includes(cur);
   return it('inicio','Início','home')+it('clientes','Clientes','users')+
    `<button type="button" class="fab" data-sheet="novo" aria-label="Registrar"><i>${ic('plus',2.4)}</i></button>`+
    it('agenda','Agenda','cal')+`<button type="button" data-sheet="mais" ${inMore?'aria-current="page"':''}>${ic('more')}Mais</button>`;
@@ -614,6 +645,7 @@ function route(){
   const h=decodeURIComponent(location.hash.slice(1))||'inicio';
   let v=h,arg=null;
   if(h.startsWith('cliente-')){v='ficha';arg=h.slice(8)}
+  if(h.startsWith('loja-')){v='carteira';arg=h.slice(5)}
   if(!VIEWS[v])v='inicio';
   const cur=v==='ficha'?'clientes':v==='registrar'?'visitas':v;
   $('#sidenav').innerHTML=navHtml(cur);
@@ -697,14 +729,15 @@ VIEWS.clientes=()=>{
   const regs=['todas',...new Set(D.clientes.map(c=>c.regiao))];
   return `<div class="vh"><div><h1>Clientes</h1><p>${D.clientes.length} cadastrados · ${sum(D.clientes,c=>c.contatos.length)} contatos</p></div><div class="acts"><button type="button" class="btn" data-sheet="cliente">${ic('plus',2.4)}Cadastrar cliente</button></div></div>
   <div class="filters"><div class="chips scroll" style="flex:1;min-width:0">${tipos.map(t=>`<button type="button" class="chip" data-fcli="${t}" aria-pressed="${S.filtroCli===t}">${lab[t]||t}</button>`).join('')}</div>
+   <select class="sel" id="f-loja" aria-label="Loja onde compra"><option value="todas">Todas as lojas</option>${lojaOpts(S.lojaF)}</select>
    <select class="sel" id="f-reg" aria-label="Região">${regs.map(r=>`<option value="${r}" ${S.regiao===r?'selected':''}>${r==='todas'?'Todas as regiões':r}</option>`).join('')}</select></div>
   <div class="card" style="padding:6px 12px"><div class="list" id="cli-list"></div></div>`;
 };
 AFTER.clientes=()=>renderCliList();
 function renderCliList(){
   const f=S.filtroCli;
-  const l=D.clientes.filter(c=>(f==='todos'||c.tipo===f||c.status===f)&&(S.regiao==='todas'||c.regiao===S.regiao));
-  $('#cli-list').innerHTML=l.length?l.map(c=>{const ab=D.opps.filter(o=>o.c===c.id&&!['Fechada','Perdida'].includes(o.etapa));return `<button type="button" class="row" data-cli="${c.id}"><span class="av ${avc(c)}">${ini(c.nome)}</span><div class="m"><b>${esc(c.nome)}</b><small>${c.tipo} · ${esc(c.cidade)} · ${c.contatos.length} contato${c.contatos.length>1?'s':''}</small></div><div class="r">${statusTag(c.status)}<div style="margin-top:3px;${c.ult>45&&c.status!=='inativo'?'color:var(--risk)':''}" class="${c.ult>45&&c.status!=='inativo'?'':'muted'}">${c.ult===0?'visitado hoje':'visita há '+c.ult+' d'}</div>${ab.length?`<div class="num">${fmt(sum(ab,o=>o.sc))} sc em aberto</div>`:''}</div></button>`}).join(''):'<div class="empty-s">Nenhum cliente com esses filtros.</div>';
+  const l=D.clientes.filter(c=>(f==='todos'||c.tipo===f||c.status===f)&&(S.regiao==='todas'||c.regiao===S.regiao)&&(S.lojaF==='todas'||(c.lojas||[]).includes(S.lojaF)));
+  $('#cli-list').innerHTML=l.length?l.map(c=>{const ab=D.opps.filter(o=>o.c===c.id&&!['Fechada','Perdida'].includes(o.etapa));return `<button type="button" class="row" data-cli="${c.id}"><span class="av ${avc(c)}">${ini(c.nome)}</span><div class="m"><b>${esc(c.nome)}</b><small>${c.tipo} · ${esc(c.cidade)}${(c.lojas||[]).length?' · compra em '+c.lojas.map(id=>esc(lojaNome(loja(id)))).join(', '):D.lojas.some(l=>l.canal===c.id)?' · '+D.lojas.filter(l=>l.canal===c.id).length+' lojas':''}</small></div><div class="r">${statusTag(c.status)}<div style="margin-top:3px;${c.ult>45&&c.status!=='inativo'?'color:var(--risk)':''}" class="${c.ult>45&&c.status!=='inativo'?'':'muted'}">${c.ult===0?'visitado hoje':'visita há '+c.ult+' d'}</div>${ab.length?`<div class="num">${fmt(sum(ab,o=>o.sc))} sc em aberto</div>`:''}</div></button>`}).join(''):'<div class="empty-s">Nenhum cliente com esses filtros.</div>';
 }
 
 /* ---------- Ficha ---------- */
@@ -719,16 +752,37 @@ VIEWS.ficha=(id)=>{
   let body='';
   if(t==='tl') body=`<div class="tl">${c.tl.map(e=>`<div class="ev ${e.novo?'new':''}"><small>${curto(fromIso(e.d))} · ${quando(e.d)}</small><b>${e.k} · ${esc(e.t)}</b><p>${esc(e.p)}</p>${e.tags?`<div class="chips">${e.tags.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div>`:''}</div>`).join('')}</div>`;
   if(t==='ct') body=`<div class="list">${c.contatos.map(p=>`<div class="row"><span class="av">${ini(p.n)}</span><div class="m"><b>${esc(p.n)}</b><small>${esc(p.f)} · <span class="num">${esc(p.t)}</span>${p.e?' · '+esc(p.e):''}</small></div><div class="r">${p.aniv?`${ic('cake').replace('<svg','<svg width="14" height="14" style="vertical-align:-2px"')} ${p.aniv.split('-').reverse().join('/')}`:''}</div><button type="button" class="icon-btn" data-copy="${esc(p.t)}" aria-label="Copiar telefone de ${esc(p.n)}">${ic('phone')}</button></div>`).join('')}</div><button type="button" class="link" data-sheet="contato" style="margin-top:10px">+ Adicionar contato</button>`;
-  if(t==='pr') body=c.props.length?`<div class="list">${c.props.map(p=>`<div class="row"><span class="av c">${ic('field')}</span><div class="m"><b>${esc(p.n)}</b><small>${esc(p.a)} · ${esc(p.c)}</small></div></div>`).join('')}</div>`:'<div class="empty-s">Nenhuma propriedade ou unidade cadastrada.</div>';
+  const minhas=D.lojas.filter(l=>l.canal===id);
+  if(t==='pr'&&minhas.length) body=`<div class="list">${minhas.map(l=>{const n=daLoja(l.id).length;return `<a class="row" href="#loja-${l.id}" style="text-decoration:none;color:inherit"><span class="av s">${ic('store')}</span><div class="m"><b>${esc(lojaNome(l))}</b><small>${l.obs?esc(l.obs)+' · ':''}${n} cliente${n===1?'':'s'} vinculado${n===1?'':'s'}</small></div><span class="r">ver carteira</span></a>`}).join('')}</div><button type="button" class="link" data-sheet="novaloja" data-pre="${id}" style="margin-top:10px">+ Adicionar loja ou unidade</button>`;
+  else if(t==='pr') body=c.props.length?`<div class="list">${c.props.map(p=>`<div class="row"><span class="av c">${ic('field')}</span><div class="m"><b>${esc(p.n)}</b><small>${esc(p.a)} · ${esc(p.c)}</small></div></div>`).join('')}</div>`:'<div class="empty-s">Nenhuma propriedade ou unidade cadastrada.</div>';
   if(t==='op') body=ops.length?`<div class="tbl"><table><thead><tr><th>Produto</th><th>Safra</th><th>Etapa</th><th class="n">Volume</th></tr></thead><tbody>${ops.map(o=>`<tr class="click" data-opp="${o.id}"><td>${o.p}</td><td>${o.safra}</td><td>${etapaTag(o)}</td><td class="n">${fmt(o.sc)} sc</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty-s">Nenhuma oportunidade ainda.</div>';
   if(t==='cp'){const cs=D.campos.filter(x=>x.c===id),dc=D.diasCampo.filter(x=>x.c===id);body=(cs.length||dc.length)?`<div class="list">${cs.map(x=>`<button type="button" class="row" data-campo="${x.id}"><span class="av c">${ic('field')}</span><div class="m"><b>${esc(x.nome)}</b><small>${x.hib.map(h=>h.n).join(', ')}</small></div><span class="tag ${x.status==='Colhido'?'g':x.status==='Planejado'?'b':'y'}">${x.status}</span></button>`).join('')}${dc.map(x=>`<div class="row"><span class="av">${ic('users')}</span><div class="m"><b>${esc(x.nome)}</b><small>${curto(fromIso(x.data))} · ${x.status==='Realizado'?x.part+' participantes':x.conf+' confirmados'}</small></div></div>`).join('')}</div>`:'<div class="empty-s">Nenhuma atividade de campo com este cliente.</div>'}
   return `<button type="button" class="link" data-go="clientes" style="justify-self:start;display:inline-flex;align-items:center;gap:4px">${ic('back').replace('<svg','<svg width="16" height="16"')}Clientes</button>
-  <div class="card"><div class="fhead"><span class="av lg ${avc(c)}">${ini(c.nome)}</span><div class="m"><h1>${esc(c.nome)}</h1><div class="sub">${c.tipo} · ${esc(c.cidade)} · ${c.regiao}</div><div class="chips" style="margin-top:8px">${statusTag(c.status)}<span class="tag y">Potencial ${c.potencial.toLowerCase()}</span><span class="tag">${esc(c.area)}</span></div></div></div>
+  <div class="card"><div class="fhead"><span class="av lg ${avc(c)}">${ini(c.nome)}</span><div class="m"><h1>${esc(c.nome)}</h1><div class="sub">${c.tipo} · ${esc(c.cidade)} · ${c.regiao}</div><div class="chips" style="margin-top:8px">${statusTag(c.status)}<span class="tag y">Potencial ${c.potencial.toLowerCase()}</span><span class="tag">${esc(c.area)}</span></div>${c.segmento!=='Canal'||(c.lojas||[]).length?`<div class="chips" style="margin-top:8px;align-items:center"><span class="small muted">Compra em</span>${lojasTags(c)||'<span class="small muted">nenhuma loja vinculada</span>'}<button type="button" class="link" data-sheet="vincular" data-pre="${id}">${(c.lojas||[]).length?'alterar':'+ vincular loja'}</button></div>`:''}</div></div>
    <div class="qa"><button type="button" class="btn" data-go="registrar" data-pre="${id}">${ic('mic')}Registrar visita</button><button type="button" class="btn sec" data-sheet="evento" data-pre="${id}">${ic('cal')}Agendar</button><button type="button" class="btn sec" data-sheet="opp" data-pre="${id}">${ic('funnel')}Oportunidade</button><button type="button" class="btn sec" data-copy="${esc(c.contatos[0].t)}">${ic('phone')}${esc(c.contatos[0].t)}</button></div>
    <div class="facts"><div><small>Última visita</small><b>${c.ult===0?'hoje':'há '+c.ult+' dias'}</b></div><div><small>Próximo compromisso</small><b>${prox?curto(fromIso(prox.d))+' · '+prox.h:'nenhum'}</b></div><div><small>Em aberto</small><b>${fmt(sum(ab,o=>o.sc))} sc</b></div><div><small>Comprado na safra</small><b>${fmt(comprado)} sc</b></div></div></div>
-  <div class="card"><div class="tabs" role="tablist">${tab('tl','Linha do tempo',c.tl.length)}${tab('ct','Contatos',c.contatos.length)}${tab('pr',c.tipo==='Produtor'?'Propriedades':'Unidades',c.props.length)}${tab('op','Oportunidades',ops.length)}${tab('cp','Campo')}</div><div style="padding-top:14px">${body}</div></div>`;
+  <div class="card"><div class="tabs" role="tablist">${tab('tl','Linha do tempo',c.tl.length)}${tab('ct','Contatos',c.contatos.length)}${tab('pr',c.tipo==='Produtor'?'Propriedades':'Lojas e unidades',c.tipo==='Produtor'?c.props.length:D.lojas.filter(l=>l.canal===id).length)}${tab('op','Oportunidades',ops.length)}${tab('cp','Campo')}</div><div style="padding-top:14px">${body}</div></div>`;
 };
 function etapaTag(o){return o.etapa==='Fechada'?'<span class="tag g">Fechada</span>':o.etapa==='Perdida'?'<span class="tag r">Perdida</span>':o.etapa==='Negociação'?'<span class="tag y">Negociação</span>':`<span class="tag b">${o.etapa}</span>`}
+
+/* ---------- Carteira por loja ---------- */
+VIEWS.carteira=(arg)=>{
+  const sel=arg&&loja(arg)?arg:(loja(S.lojaSel)?S.lojaSel:D.lojas[0].id);S.lojaSel=sel;
+  const L=loja(sel),cs=daLoja(sel);
+  const ab=D.opps.filter(o=>cs.some(c=>c.id===o.c)&&!['Fechada','Perdida'].includes(o.etapa));
+  const fe=D.opps.filter(o=>cs.some(c=>c.id===o.c)&&o.etapa==='Fechada');
+  const sem=cs.filter(c=>c.ult>45);
+  const lista=canais().map(c=>`<div class="card" style="padding:10px 12px"><div class="ch" style="margin-bottom:4px"><a href="#cliente-${c.id}" style="color:inherit;text-decoration:none">${esc(c.nome)}</a><button type="button" class="link" data-sheet="novaloja" data-pre="${c.id}">+ loja</button></div><div class="list">${D.lojas.filter(l=>l.canal===c.id).map(l=>{const n=daLoja(l.id).length;return `<a class="row" href="#loja-${l.id}" style="text-decoration:none;color:inherit;padding:8px 6px;border-radius:8px;${l.id===sel?'background:var(--leaf-soft)':''}" ${l.id===sel?'aria-current="true"':''}><span class="av s" style="width:30px;height:30px">${ic('store').replace('<svg','<svg width="16" height="16"')}</span><div class="m"><b>${esc(l.nome)}</b><small>${l.obs?esc(l.obs):'Loja'}</small></div><span class="tag ${n?'g':''}">${n}</span></a>`}).join('')}</div></div>`).join('');
+  return `<div class="vh"><div><h1>Carteira por loja</h1><p>Clientes vinculados a cada loja ou unidade dos seus canais.</p></div></div>
+  <select class="sel cart-sel" id="cart-sel" aria-label="Escolher loja">${lojaOpts(sel)}</select>
+  <div class="cart-l"><div class="grid cart-list" style="align-content:start;gap:10px">${lista}</div>
+  <div class="grid" style="align-content:start" id="loja-det"><div class="card"><div class="fhead"><span class="av lg s">${ic('store')}</span><div class="m"><div class="small muted">${esc(cli(L.canal).nome)}</div><h1>${esc(L.nome)}</h1><div class="sub">Aparece nos filtros como <b>${esc(lojaNome(L))}</b>${L.obs?' · '+esc(L.obs):''}</div></div></div>
+   <div class="qa"><button type="button" class="btn" data-sheet="cliente" data-pre="${sel}">${ic('plus',2.4)}Cadastrar cliente nesta loja</button><button type="button" class="btn sec" data-sheet="vinculaloja" data-pre="${sel}">${ic('users')}Vincular cliente existente</button></div>
+   <div class="facts"><div><small>Clientes</small><b>${cs.length}</b></div><div><small>Área dos clientes</small><b>${fmt(sum(cs,haDe))} ha</b></div><div><small>Em aberto</small><b>${fmt(sum(ab,o=>o.sc))} sc</b></div><div><small>Fechado na safra</small><b>${fmt(sum(fe,o=>o.sc))} sc</b></div></div></div>
+   <div class="card" style="padding:6px 12px"><div class="list">${cs.length?cs.sort((a,b)=>b.ult-a.ult).map(c=>{const o=D.opps.filter(x=>x.c===c.id&&!['Fechada','Perdida'].includes(x.etapa));return `<button type="button" class="row" data-cli="${c.id}"><span class="av ${avc(c)}">${ini(c.nome)}</span><div class="m"><b>${esc(c.nome)}</b><small>${esc(c.area)}${c.lojas.length>1?' · também compra em '+c.lojas.filter(x=>x!==sel).map(x=>esc(lojaNome(loja(x)))).join(', '):''}</small></div><div class="r">${statusTag(c.status)}<div style="margin-top:3px;${c.ult>45?'color:var(--risk)':''}" class="${c.ult>45?'':'muted'}">visita há ${c.ult} d</div>${o.length?`<div class="num">${fmt(sum(o,x=>x.sc))} sc em aberto</div>`:''}</div></button>`}).join(''):`<div class="empty-s">Nenhum cliente vinculado a esta loja ainda.<br>Use "Cadastrar cliente nesta loja" ou "Vincular cliente existente".</div>`}</div></div>
+   ${sem.length?`<div class="alert">${ic('warn')}<div><b>${sem.length} cliente${sem.length>1?'s':''} desta loja sem visita há mais de 45 dias</b><span>${sem.map(c=>esc(c.nome)).join(', ')}</span></div></div>`:''}</div></div>`;
+};
+
 
 /* ---------- Visitas ---------- */
 VIEWS.visitas=()=>{
@@ -745,7 +799,7 @@ VIEWS.visitas=()=>{
 /* ---------- Registrar por voz ---------- */
 const AUDIO='Visitei a Cooperativa Alfa. Conversei com o gerente comercial. Temos oportunidade de trabalhar o DKB358PRO4 na safrinha. Preciso retornar na próxima semana com os resultados dos ensaios.';
 VIEWS.registrar=()=>{
-  const r=S.rec||(S.rec={fase:'pronto',tipo:'Visita',c:S.pre||'alfa'});
+  const r=S.rec||(S.rec={fase:'pronto',tipo:'Visita',c:cli(S.pre)?S.pre:'alfa'});
   const opts=D.clientes.map(c=>`<option value="${c.id}" ${r.c===c.id?'selected':''}>${esc(c.nome)}</option>`).join('');
   const head=`<button type="button" class="link" data-go="visitas" style="justify-self:start;display:inline-flex;align-items:center;gap:4px">${ic('back').replace('<svg','<svg width="16" height="16"')}Visitas</button>
    <div class="vh"><div><h1>Registrar atendimento</h1><p>Fale como se estivesse contando para um colega. Você confere tudo antes de salvar.</p></div></div>`;
@@ -878,7 +932,7 @@ function linechart(data){
 }
 
 /* ---------- Assistente ---------- */
-const SUG=['Quem está sem visita há mais de 30 dias?','Quanto tenho em negociação na safrinha?','Resumo da Cooperativa Alfa','O que está atrasado?','Quem faz aniversário esta semana?','Como foi o DKB358PRO4 nos campos?'];
+const SUG=['Quem compra na Alfa de Águas de Chapecó?','Quem está sem visita há mais de 30 dias?','Quanto tenho em negociação na safrinha?','Resumo da Cooperativa Alfa','O que está atrasado?','Quem faz aniversário esta semana?','Como foi o DKB358PRO4 nos campos?'];
 VIEWS.assistente=()=>`<div class="vh"><div><h1>Assistente</h1><p>Pergunte sobre a sua carteira do jeito que você falaria. As respostas usam só os seus registros.</p></div></div>
   <div class="chat" id="chat">${S.chat.length?S.chat.map(m=>`<div class="msg ${m.u?'u':'a'}">${m.h}</div>`).join(''):`<div class="msg a">Oi, Luana. Posso buscar clientes, somar o funil, listar pendências ou resumir o histórico de alguém. Experimente uma destas:</div>`}</div>
   <div class="chips">${SUG.map(s=>`<button type="button" class="chip" data-ask="${esc(s)}">${esc(s)}</button>`).join('')}</div>
@@ -887,6 +941,8 @@ function responder(q){
   const t=q.toLowerCase();
   const c=D.clientes.find(c=>t.includes(c.nome.toLowerCase())||t.includes(c.nome.toLowerCase().split(' ').slice(-1)[0])&&c.nome.split(' ').slice(-1)[0].length>4);
   const li=a=>'<ul>'+a.map(x=>`<li>${x}</li>`).join('')+'</ul>';
+  const lj=[...D.lojas].sort((a,b)=>b.nome.length-a.nome.length).find(l=>t.includes(l.nome.toLowerCase())&&(t.includes(curtoCanal(cli(l.canal)).toLowerCase())||!D.lojas.some(o=>o!==l&&o.nome===l.nome)));
+  if(lj&&/compr|loja|unidade|carteira|client/.test(t)){const cs=daLoja(lj.id);return `<b>${esc(lojaNome(lj))}</b> tem ${cs.length} cliente${cs.length===1?'':'s'} vinculado${cs.length===1?'':'s'}:${li(cs.map(c=>`<a href="#cliente-${c.id}">${esc(c.nome)}</a> · ${esc(c.area)} · visita há ${c.ult} dias`))}<a href="#loja-${lj.id}">Abrir carteira da loja</a><div class="src">Fonte: vínculos de clientes com lojas</div>`}
   if(/anivers/.test(t)){const a=aniversarios(7);return `Aniversários nos próximos 7 dias:${li(a.map(x=>`<b>${esc(x.p.n)}</b> (${esc(x.c.nome)}) · ${x.quando}`))}<div class="src">Fonte: contatos cadastrados</div>`}
   if(/campo|ensaio|produtiv|sc\/ha|desempenho/.test(t)&&!c){return `Nos campos desta safra:${li(['<b>Área comercial Mantovani</b>: DKB358PRO4 156 sc/ha, TL 310 VIP 148, Concorrente B 139.','<b>Vitrine Linha São Pedro</b>: em V10, estande de 64.200 pl/ha no DKB358PRO4, o melhor dos três.','<b>Ensaio Sítio Baretta</b>: plantio previsto para 25 jan.'])}<div class="src">Fonte: 3 campos demonstrativos, 3 avaliações</div>`}
   if(/sem visita|sem acompanh|aten[cç]|esquec/.test(t)){const l=D.clientes.filter(c=>c.ult>30&&c.status!=='inativo').sort((a,b)=>b.ult-a.ult);return `${l.length} clientes estão há mais de 30 dias sem visita:${li(l.map(c=>`<a href="#cliente-${c.id}">${esc(c.nome)}</a> · ${c.ult} dias · potencial ${c.potencial.toLowerCase()}`))}Sugestão: a Campo Verde e o Ricardo Kunz ficam a 38 km um do outro. Dá para visitar os dois na sexta.<div class="src">Fonte: linha do tempo de ${D.clientes.length} clientes</div>`}
@@ -938,8 +994,10 @@ function closeSheet(){$('#sheet').innerHTML=''}
 const cliOpts=sel=>D.clientes.map(c=>`<option value="${c.id}" ${sel===c.id?'selected':''}>${esc(c.nome)}</option>`).join('');
 const SHEETS={
  novo:()=>sheet('O que você quer registrar?',`<div class="menu-g"><button type="button" class="main" data-go="registrar">${ic('mic')}Gravar visita por voz</button><button type="button" data-sheet="cliente">${ic('users')}Cliente</button><button type="button" data-sheet="opp">${ic('funnel')}Oportunidade</button><button type="button" data-sheet="evento">${ic('cal')}Compromisso</button><button type="button" data-sheet="tarefa">${ic('task')}Tarefa</button><button type="button" data-sheet="campoav">${ic('field')}Campo</button><button type="button" data-go="relatorios">${ic('doc')}Relatório</button></div>`),
- mais:()=>sheet('Mais',`<div class="menu-g">${[['visitas','Visitas','visit'],['oportunidades','Oportunidades','funnel'],['campo','Campo','field'],['inteligencia','Resultados','chart'],['assistente','Assistente','spark'],['relatorios','Relatórios','doc']].map(([k,l,i])=>`<a href="#${k}" data-close>${ic(i)}${l}</a>`).join('')}</div><button type="button" class="sync" data-act="sync" style="justify-content:center"><i></i><span class="sync-t">${S.offline?'Sem internet · '+S.pendSync+' registros aguardando':'Sincronizado · Google Agenda conectado'}</span></button>`),
- cliente:()=>sheet('Cadastrar cliente',`<form class="form" id="form-cli"><div class="f"><label for="nc-n">Nome</label><input class="inp" id="nc-n" required placeholder="Ex.: Agropecuária São José"></div><div class="two"><div class="f"><label for="nc-t">Tipo</label><select class="inp" id="nc-t"><option>Revenda</option><option>Cooperativa</option><option>Loja agropecuária</option><option>Produtor</option><option>Empresa</option></select></div><div class="f"><label for="nc-c">Cidade</label><input class="inp" id="nc-c" placeholder="Cidade/UF"></div></div><div class="two"><div class="f"><label for="nc-ct">Contato principal</label><input class="inp" id="nc-ct" placeholder="Nome e função"></div><div class="f"><label for="nc-tel">Telefone</label><input class="inp" id="nc-tel" inputmode="tel" placeholder="(49) 9 0000-0000"></div></div><div class="f"><label>Potencial</label><div class="seg" id="nc-p"><button type="button" data-pot="Baixo" aria-pressed="false">Baixo</button><button type="button" data-pot="Médio" aria-pressed="true">Médio</button><button type="button" data-pot="Alto" aria-pressed="false">Alto</button></div></div><button class="btn wide" type="submit">Salvar cliente</button><div class="small muted" style="text-align:center">O resto da ficha pode ser completado depois.</div></form>`),
+ mais:()=>sheet('Mais',`<div class="menu-g">${[['carteira','Carteira por loja','store'],['visitas','Visitas','visit'],['oportunidades','Oportunidades','funnel'],['campo','Campo','field'],['inteligencia','Resultados','chart'],['assistente','Assistente','spark'],['relatorios','Relatórios','doc']].map(([k,l,i])=>`<a href="#${k}" data-close>${ic(i)}${l}</a>`).join('')}</div><button type="button" class="sync" data-act="sync" style="justify-content:center"><i></i><span class="sync-t">${S.offline?'Sem internet · '+S.pendSync+' registros aguardando':'Sincronizado · Google Agenda conectado'}</span></button>`),
+ cliente:(pre)=>sheet('Cadastrar cliente',`<form class="form" id="form-cli"><div class="f"><label for="nc-n">Nome</label><input class="inp" id="nc-n" required placeholder="Ex.: Agropecuária São José"></div><div class="two"><div class="f"><label for="nc-t">Tipo</label><select class="inp" id="nc-t"><option>Produtor</option><option>Revenda</option><option>Cooperativa</option><option>Loja agropecuária</option><option>Empresa</option></select></div><div class="f"><label for="nc-c">Cidade</label><input class="inp" id="nc-c" placeholder="Cidade/UF" value="${pre&&loja(pre)?esc(loja(pre).nome)+'/SC':''}"></div></div>
+ <div class="f" id="nc-l-w"><label for="nc-l">Compra em qual loja</label><select class="inp" id="nc-l"><option value="">Nenhuma ou não sei</option>${lojaOpts(pre)}</select></div>
+ <div class="f" id="nc-lojas-w" hidden><label for="nc-lojas">Lojas ou unidades (uma por linha)</label><textarea class="inp" id="nc-lojas" placeholder="Chapecó&#10;Águas de Chapecó&#10;Guatambu"></textarea><div class="small muted" style="margin-top:4px">Cada loja aparece nos filtros como "Nome da cooperativa · Loja". Não precisa escrever com barra.</div></div><div class="two"><div class="f"><label for="nc-ct">Contato principal</label><input class="inp" id="nc-ct" placeholder="Nome e função"></div><div class="f"><label for="nc-tel">Telefone</label><input class="inp" id="nc-tel" inputmode="tel" placeholder="(49) 9 0000-0000"></div></div><div class="f"><label>Potencial</label><div class="seg" id="nc-p"><button type="button" data-pot="Baixo" aria-pressed="false">Baixo</button><button type="button" data-pot="Médio" aria-pressed="true">Médio</button><button type="button" data-pot="Alto" aria-pressed="false">Alto</button></div></div><button class="btn wide" type="submit">Salvar cliente</button><div class="small muted" style="text-align:center">O resto da ficha pode ser completado depois.</div></form>`),
  contato:()=>sheet('Adicionar contato',`<form class="form" id="form-ct"><div class="f"><label for="ct-n">Nome</label><input class="inp" id="ct-n" required></div><div class="two"><div class="f"><label for="ct-f">Função</label><select class="inp" id="ct-f"><option>Agrônomo</option><option>Técnico</option><option>Gerente</option><option>Balconista</option><option>Vendedor</option><option>Produtor</option><option>Outro</option></select></div><div class="f"><label for="ct-t">Telefone</label><input class="inp" id="ct-t" inputmode="tel"></div></div><div class="two"><div class="f"><label for="ct-e">E-mail</label><input class="inp" id="ct-e" type="email"></div><div class="f"><label for="ct-a">Aniversário</label><input class="inp" id="ct-a" placeholder="dd/mm"></div></div><button class="btn wide" type="submit">Salvar contato</button></form>`),
  opp:(pre)=>sheet('Nova oportunidade',`<form class="form" id="form-opp"><div class="f"><label for="op-c">Cliente</label><select class="inp" id="op-c">${cliOpts(pre)}</select></div><div class="two"><div class="f"><label for="op-p">Produto ou híbrido</label><input class="inp" id="op-p" list="prods" value="DKB358PRO4"><datalist id="prods"><option value="DKB358PRO4"><option value="TL 240 PRO"><option value="TL 310 VIP"></datalist></div><div class="f"><label for="op-s">Safra</label><select class="inp" id="op-s"><option>Safrinha 2027</option><option>Verão 26/27</option><option>Verão 27/28</option></select></div></div><div class="two"><div class="f"><label for="op-v">Volume (sacos)</label><input class="inp" id="op-v" type="number" min="1" value="300"></div><div class="f"><label for="op-a">Área (ha)</label><input class="inp" id="op-a" type="number" min="1" value="290"></div></div><div class="two"><div class="f"><label for="op-e">Etapa</label><select class="inp" id="op-e"><option>Prospecção</option><option>Apresentação</option><option>Negociação</option></select></div><div class="f"><label for="op-d">Previsão de fechamento</label><input class="inp" id="op-d" type="date" value="${iso(add(30))}"></div></div><button class="btn wide" type="submit">Criar oportunidade</button></form>`),
  evento:(pre)=>sheet('Agendar compromisso',`<form class="form" id="form-ev"><div class="f"><label for="ev-t">Tipo</label><div class="seg" id="ev-t">${['Visita','Reunião','Ligação','Campo'].map((x,i)=>`<button type="button" data-evt="${x}" aria-pressed="${i===0}">${x}</button>`).join('')}</div></div><div class="f"><label for="ev-c">Cliente</label><select class="inp" id="ev-c">${cliOpts(pre)}</select></div><div class="two"><div class="f"><label for="ev-d">Data</label><input class="inp" id="ev-d" type="date" value="${iso(add(1))}"></div><div class="f"><label for="ev-h">Horário</label><input class="inp" id="ev-h" type="time" value="09:00"></div></div><div class="f"><label for="ev-s">Assunto</label><input class="inp" id="ev-s" placeholder="Ex.: apresentar resultados de ensaio"></div><label class="opt"><input type="checkbox" id="ev-g" checked> Enviar ao Google Agenda com a ficha do cliente no convite</label><label class="opt"><input type="checkbox" id="ev-l" checked> Lembrar 1 hora antes</label><button class="btn wide" type="submit">Agendar</button></form>`),
@@ -947,6 +1005,9 @@ const SHEETS={
  campoav:()=>sheet('Registrar no campo',`<form class="form" id="form-ca"><div class="f"><label for="ca-c">Campo</label><select class="inp" id="ca-c">${D.campos.map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('')}<option value="novo">+ Novo campo demonstrativo</option></select></div><div class="two"><div class="f"><label for="ca-t">Tipo</label><select class="inp" id="ca-t"><option>Avaliação de estande</option><option>Sanidade</option><option>Colheita e produtividade</option><option>Visita com produtores</option></select></div><div class="f"><label for="ca-d">Data</label><input class="inp" id="ca-d" type="date" value="${iso(HOJE)}"></div></div><div class="f"><label for="ca-o">Observações</label><textarea class="inp" id="ca-o" placeholder="O que você viu no campo"></textarea></div><div class="attach"><label>${ic('cam')}Fotos<input type="file" accept="image/*" multiple data-anexo></label></div><button class="btn wide" type="submit">Salvar avaliação</button></form>`),
  conc:()=>sheet('Informação de concorrente',`<form class="form" id="form-co"><div class="two"><div class="f"><label for="co-t">Concorrente</label><input class="inp" id="co-t" required placeholder="Empresa ou produto"></div><div class="f"><label for="co-r">Região</label><input class="inp" id="co-r" value="Oeste SC"></div></div><div class="f"><label for="co-p">O que você ficou sabendo</label><textarea class="inp" id="co-p" required placeholder="Preço, prazo, bonificação, presença em clientes…"></textarea></div><button class="btn wide" type="submit">Salvar</button></form>`),
  'registro-texto':(pre)=>sheet('Registrar por escrito',`<form class="form" id="form-rt"><div class="two"><div class="f"><label for="rt-c">Cliente</label><select class="inp" id="rt-c">${cliOpts(pre||S.rec&&S.rec.c||'alfa')}</select></div><div class="f"><label for="rt-k">Tipo</label><select class="inp" id="rt-k"><option>Visita</option><option>Reunião</option><option>Ligação</option><option>Atendimento</option></select></div></div><div class="f"><label for="rt-t">Assunto</label><input class="inp" id="rt-t" required placeholder="Ex.: apresentação de portfólio"></div><div class="f"><label for="rt-p">Como foi</label><textarea class="inp" id="rt-p" placeholder="Necessidades, dificuldades, oportunidades, próximos passos"></textarea></div><div class="f"><label for="rt-n">Próximo passo</label><input class="inp" id="rt-n" placeholder="Vira uma tarefa"></div><button class="btn wide" type="submit">Salvar no histórico</button></form>`),
+ vincular:(pre)=>{const c=cli(pre);sheet('Onde '+c.nome.split(' ')[0]+' compra',`<form class="form" id="form-vinc"><input type="hidden" id="vc-id" value="${pre}"><div class="small muted">Marque uma ou mais lojas. Depois você vê esse cliente na carteira de cada loja.</div>${canais().map(k=>`<div><div class="ch" style="margin:4px 0 6px;font-size:13px">${esc(k.nome)}</div><div class="opts">${D.lojas.filter(l=>l.canal===k.id).map(l=>`<label class="opt"><input type="checkbox" name="vl" value="${l.id}" ${(c.lojas||[]).includes(l.id)?'checked':''}> ${esc(lojaNome(l))}</label>`).join('')}</div></div>`).join('')}<button class="btn wide" type="submit">Salvar</button></form>`)},
+ vinculaloja:(pre)=>{const L=loja(pre);const op=D.clientes.filter(c=>c.segmento!=='Canal'&&!(c.lojas||[]).includes(pre));sheet('Vincular a '+lojaNome(L),`<form class="form" id="form-vl"><input type="hidden" id="vl-id" value="${pre}"><div class="f"><label for="vl-c">Cliente</label><select class="inp" id="vl-c">${op.map(c=>`<option value="${c.id}">${esc(c.nome)} · ${esc(c.cidade)}</option>`).join('')}</select></div><button class="btn wide" type="submit" ${op.length?'':'disabled'}>Vincular</button></form>`)},
+ novaloja:(pre)=>sheet('Nova loja ou unidade',`<form class="form" id="form-nl"><div class="f"><label for="nl-c">De qual cooperativa ou revenda</label><select class="inp" id="nl-c">${D.clientes.filter(c=>c.segmento==='Canal').map(c=>`<option value="${c.id}" ${c.id===pre?'selected':''}>${esc(c.nome)}</option>`).join('')}</select></div><div class="f"><label for="nl-n">Nome da loja (normalmente a cidade)</label><input class="inp" id="nl-n" required placeholder="Ex.: Águas de Chapecó"></div><div class="f"><label for="nl-o">Observação</label><input class="inp" id="nl-o" placeholder="Ex.: matriz, loja + armazém"></div><button class="btn wide" type="submit">Criar loja</button></form>`),
  personalizar:()=>sheet('Personalizar o início',`<div class="opts">${DASH_CARDS.map(([k,l])=>`<label class="opt"><input type="checkbox" data-dash="${k}" ${S.dash[k]?'checked':''}> ${l}</label>`).join('')}</div><div class="f"><label class="small muted" for="perfil" style="display:block;margin-bottom:4px">Mostrar o que importa para</label><select class="inp" id="perfil"><option>RTV / promotor</option><option>Gestor de equipe</option><option>Consultor</option></select></div><button type="button" class="btn wide" data-close>Pronto</button>`)
 };
 function oppSheet(id){
@@ -980,7 +1041,7 @@ document.addEventListener('click',e=>{
   if(d.ask){perguntar(d.ask);return}
   if(d.pre!==undefined)S.pre=d.pre;
   if(d.sheet){e.preventDefault();SHEETS[d.sheet](d.pre);return}
-  if(d.go){closeSheet();if(d.go==='registrar'){S.rec={fase:'pronto',tipo:'Visita',c:d.pre||S.pre||'alfa'}}go(d.go);return}
+  if(d.go){closeSheet();if(d.go==='registrar'){S.rec={fase:'pronto',tipo:'Visita',c:[d.pre,S.pre].find(x=>cli(x))||'alfa'}}go(d.go);return}
   if(d.cli){closeSheet();S.tabFicha='tl';go('cliente-'+d.cli);return}
   if(d.opp){oppSheet(d.opp);return}
   if(d.campo){campoSheet(d.campo);return}
@@ -1012,6 +1073,9 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.id==='f-reg'){S.regiao=t.value;renderCliList()}
+  if(t.id==='cart-sel'){go('loja-'+t.value)}
+  if(t.id==='f-loja'){S.lojaF=t.value;renderCliList()}
+  if(t.id==='nc-t'){const canal=['Cooperativa','Revenda','Loja agropecuária'].includes(t.value);$('#nc-l-w').hidden=canal;$('#nc-lojas-w').hidden=!canal}
   if(t.id==='r-cli'){S.rec.c=t.value}
   if(t.id==='r-audio'&&t.files.length){S.rec.fase='revisar';route();toast('Áudio recebido: '+t.files[0].name)}
   if(t.dataset.dash){S.dash[t.dataset.dash]=t.checked;try{localStorage.setItem('talhao-dash',JSON.stringify(S.dash))}catch(_){}if(S.route==='inicio')route()}
@@ -1021,8 +1085,12 @@ document.addEventListener('submit',e=>{
   e.preventDefault();const f=e.target,v=id=>($('#'+id)||{}).value||'';
   if(f.id==='askf'){const q=v('askq').trim();if(q)perguntar(q);return}
   if(f.id==='form-cli'){const id='n'+Date.now();const pot=($('#nc-p [aria-pressed="true"]')||{}).dataset.pot||'Médio';const [cn,...cf]=(v('nc-ct')||'Contato principal').split(/[,·-]/);
-    D.clientes.unshift({id,nome:v('nc-n'),tipo:v('nc-t'),cidade:v('nc-c')||'—',regiao:'Oeste SC',segmento:v('nc-t')==='Produtor'?'Produtor':'Canal',potencial:pot,status:'potencial',ult:0,area:'Cadastro novo',contatos:[{n:cn.trim(),f:(cf.join(' ').trim()||'Contato'),t:v('nc-tel')||'—',e:''}],props:[],tl:[{d:iso(HOJE),k:'Cadastro',t:'Cliente cadastrado',p:'Ficha criada.',novo:true}]});
+    D.clientes.unshift({id,nome:v('nc-n'),tipo:v('nc-t'),cidade:v('nc-c')||'—',regiao:'Oeste SC',segmento:['Cooperativa','Revenda','Loja agropecuária'].includes(v('nc-t'))?'Canal':'Produtor',potencial:pot,status:'potencial',ult:0,area:'Cadastro novo',lojas:v('nc-l')&&$('#nc-l-w').hidden===false?[v('nc-l')]:[],contatos:[{n:cn.trim(),f:(cf.join(' ').trim()||'Contato'),t:v('nc-tel')||'—',e:''}],props:[],tl:[{d:iso(HOJE),k:'Cadastro',t:'Cliente cadastrado',p:'Ficha criada.',novo:true}]});
+    if(!$('#nc-lojas-w').hidden)v('nc-lojas').split('\n').map(x=>x.trim()).filter(Boolean).forEach((x,i)=>D.lojas.push({id:id+'-'+i,canal:id,nome:x}));
     registrarOffline();closeSheet();toast('Cliente cadastrado');go('cliente-'+id);return}
+  if(f.id==='form-vinc'){const c=cli(v('vc-id'));c.lojas=[...f.querySelectorAll('input[name=vl]:checked')].map(x=>x.value);closeSheet();toast(c.lojas.length?'Lojas atualizadas':'Cliente sem loja vinculada');route();return}
+  if(f.id==='form-vl'){const c=cli(v('vl-c')),lid=v('vl-id');c.lojas=[...new Set([...(c.lojas||[]),lid])];closeSheet();toast(c.nome+' vinculado a '+lojaNome(loja(lid)));route();return}
+  if(f.id==='form-nl'){const id='x'+Date.now();D.lojas.push({id,canal:v('nl-c'),nome:v('nl-n'),obs:v('nl-o')});closeSheet();toast('Loja criada: '+lojaNome(loja(id)));go('loja-'+id);return}
   if(f.id==='form-ct'){const c=cli(S.arg);if(c){const a=v('ct-a').split('/');c.contatos.push({n:v('ct-n'),f:v('ct-f'),t:v('ct-t')||'—',e:v('ct-e'),aniv:a.length===2?a[1].padStart(2,'0')+'-'+a[0].padStart(2,'0'):''});S.tabFicha='ct'}closeSheet();toast('Contato adicionado');route();return}
   if(f.id==='form-opp'){D.opps.push({id:Date.now(),c:v('op-c'),p:v('op-p'),safra:v('op-s'),sc:+v('op-v')||0,ha:+v('op-a')||0,etapa:v('op-e'),prev:v('op-d')});registrarOffline();closeSheet();toast('Oportunidade criada');go('oportunidades');return}
   if(f.id==='form-ev'){const tipo=($('#ev-t [aria-pressed="true"]')||{}).dataset.evt||'Visita';const c=cli(v('ev-c'));D.eventos.push({d:v('ev-d'),h:v('ev-h'),t:tipo+' · '+c.nome,c:c.id,s:v('ev-s')||c.cidade,k:tipo==='Campo'?'f':'v'});S.agDia=v('ev-d');registrarOffline();closeSheet();toast($('#ev-g')&&$('#ev-g').checked?'Agendado e enviado ao Google Agenda':'Agendado');go('agenda');return}
@@ -1055,13 +1123,14 @@ q.addEventListener('input',()=>{
   const cs=D.clientes.filter(c=>(c.nome+' '+c.cidade+' '+c.tipo).toLowerCase().includes(t));
   const ps=[];D.clientes.forEach(c=>c.contatos.forEach(p=>{if((p.n+' '+p.f).toLowerCase().includes(t))ps.push({c,p})}));
   const os=D.opps.filter(o=>o.p.toLowerCase().includes(t));
-  res.innerHTML=(cs.length?'<h4>Clientes</h4>'+cs.slice(0,5).map(c=>`<button type="button" class="row" data-cli="${c.id}" style="padding:8px 12px"><span class="av ${avc(c)}">${ini(c.nome)}</span><div class="m"><b>${esc(c.nome)}</b><small>${c.tipo} · ${esc(c.cidade)}</small></div></button>`).join(''):'')+
+  const ls=D.lojas.filter(l=>lojaNome(l).toLowerCase().includes(t));
+  res.innerHTML=(ls.length?'<h4>Lojas</h4>'+ls.slice(0,5).map(l=>`<a class="row" href="#loja-${l.id}" style="padding:8px 12px;text-decoration:none;color:inherit"><span class="av s">${ic('store')}</span><div class="m"><b>${esc(lojaNome(l))}</b><small>${daLoja(l.id).length} clientes vinculados</small></div></a>`).join(''):'')+(cs.length?'<h4>Clientes</h4>'+cs.slice(0,5).map(c=>`<button type="button" class="row" data-cli="${c.id}" style="padding:8px 12px"><span class="av ${avc(c)}">${ini(c.nome)}</span><div class="m"><b>${esc(c.nome)}</b><small>${c.tipo} · ${esc(c.cidade)}</small></div></button>`).join(''):'')+
    (ps.length?'<h4>Contatos</h4>'+ps.slice(0,5).map(x=>`<button type="button" class="row" data-cli="${x.c.id}" style="padding:8px 12px"><span class="av">${ini(x.p.n)}</span><div class="m"><b>${esc(x.p.n)}</b><small>${esc(x.p.f)} · ${esc(x.c.nome)}</small></div></button>`).join(''):'')+
    (os.length?'<h4>Oportunidades</h4>'+os.slice(0,5).map(o=>`<button type="button" class="row" data-opp="${o.id}" style="padding:8px 12px"><span class="av c">${ic('funnel')}</span><div class="m"><b>${esc(cli(o.c).nome)} · ${o.p}</b><small>${o.safra} · ${fmt(o.sc)} sc · ${o.etapa.toLowerCase()}</small></div></button>`).join(''):'')||
    `<div class="empty">Nada encontrado para "${esc(q.value)}". <button type="button" class="link" data-ask="${esc(q.value)}">Perguntar ao assistente</button></div>`;
   res.hidden=false;
 });
-document.addEventListener('click',e=>{if(!e.target.closest('.gsearch')){res.hidden=true}else if(e.target.closest('.results button')){res.hidden=true;q.value=''}},true);
+document.addEventListener('click',e=>{if(!e.target.closest('.gsearch')){res.hidden=true}else if(e.target.closest('.results button,.results a')){res.hidden=true;q.value=''}},true);
 q.addEventListener('keydown',e=>{if(e.key==='Escape'){res.hidden=true;q.blur()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#sheet').innerHTML)closeSheet();if(e.key==='/'&&!e.target.closest('input,textarea,select')){e.preventDefault();q.focus()}});
 
