@@ -30,6 +30,8 @@
   --shadow:0 18px 40px -24px rgb(0 0 0 / .8); color-scheme:dark }
 
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14.5px;line-height:1.5;margin:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
 h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15;margin:0;font-weight:700}
@@ -332,6 +334,8 @@ textarea.inp{resize:vertical;min-height:80px}
 @media (prefers-reduced-motion: reduce){.toast{transition:none}}
 
 .bnav{display:none}
+.nl-add{margin-top:8px;background:var(--leaf-soft);color:var(--leaf);border:1.5px dashed var(--leaf);white-space:normal;text-align:left;font-size:14.5px;padding:12px}
+.nl-add:hover{background:var(--leaf);color:var(--bg);border-style:solid}
 .cart-l{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:16px;align-items:start}
 .cart-sel{display:none;width:100%;padding:10px 12px;font-size:15px}
 .muted{color:var(--muted)}
@@ -1007,7 +1011,8 @@ const SHEETS={
  'registro-texto':(pre)=>sheet('Registrar por escrito',`<form class="form" id="form-rt"><div class="two"><div class="f"><label for="rt-c">Cliente</label><select class="inp" id="rt-c">${cliOpts(pre||S.rec&&S.rec.c||'alfa')}</select></div><div class="f"><label for="rt-k">Tipo</label><select class="inp" id="rt-k"><option>Visita</option><option>Reunião</option><option>Ligação</option><option>Atendimento</option></select></div></div><div class="f"><label for="rt-t">Assunto</label><input class="inp" id="rt-t" required placeholder="Ex.: apresentação de portfólio"></div><div class="f"><label for="rt-p">Como foi</label><textarea class="inp" id="rt-p" placeholder="Necessidades, dificuldades, oportunidades, próximos passos"></textarea></div><div class="f"><label for="rt-n">Próximo passo</label><input class="inp" id="rt-n" placeholder="Vira uma tarefa"></div><button class="btn wide" type="submit">Salvar no histórico</button></form>`),
  vincular:(pre)=>{const c=cli(pre);sheet('Onde '+c.nome.split(' ')[0]+' compra',`<form class="form" id="form-vinc"><input type="hidden" id="vc-id" value="${pre}"><div class="small muted">Marque uma ou mais lojas. Depois você vê esse cliente na carteira de cada loja.</div>${canais().map(k=>`<div><div class="ch" style="margin:4px 0 6px;font-size:13px">${esc(k.nome)}</div><div class="opts">${D.lojas.filter(l=>l.canal===k.id).map(l=>`<label class="opt"><input type="checkbox" name="vl" value="${l.id}" ${(c.lojas||[]).includes(l.id)?'checked':''}> ${esc(lojaNome(l))}</label>`).join('')}</div></div>`).join('')}<button class="btn wide" type="submit">Salvar</button></form>`)},
  vinculaloja:(pre)=>{const L=loja(pre);const op=D.clientes.filter(c=>c.segmento!=='Canal'&&!(c.lojas||[]).includes(pre));sheet('Vincular a '+lojaNome(L),`<form class="form" id="form-vl"><input type="hidden" id="vl-id" value="${pre}"><div class="f"><label for="vl-c">Cliente</label><select class="inp" id="vl-c">${op.map(c=>`<option value="${c.id}">${esc(c.nome)} · ${esc(c.cidade)}</option>`).join('')}</select></div><button class="btn wide" type="submit" ${op.length?'':'disabled'}>Vincular</button></form>`)},
- novaloja:(pre)=>sheet('Nova loja ou unidade',`<form class="form" id="form-nl"><div class="f"><label for="nl-c">De qual cooperativa ou revenda</label><select class="inp" id="nl-c">${D.clientes.filter(c=>c.segmento==='Canal').map(c=>`<option value="${c.id}" ${c.id===pre?'selected':''}>${esc(c.nome)}</option>`).join('')}<option value="novo">+ Nova cooperativa ou revenda</option></select></div>
+ novaloja:(pre)=>sheet('Nova loja ou unidade',`<form class="form" id="form-nl"><div class="f"><label for="nl-c">De qual cooperativa ou revenda</label><select class="inp" id="nl-c">${D.clientes.filter(c=>c.segmento==='Canal').map(c=>`<option value="${c.id}" ${c.id===pre?'selected':''}>${esc(c.nome)}</option>`).join('')}<option value="novo">+ Nova cooperativa ou revenda</option></select>
+ <button type="button" class="btn wide nl-add" id="nl-add">${ic('plus',2.4)}Não está na lista? Cadastrar nova cooperativa ou revenda</button></div>
  <div id="nl-novo" class="form" hidden style="background:var(--leaf-soft);border-radius:12px;padding:12px"><div class="f"><label for="nl-cn">Nome da cooperativa ou revenda</label><input class="inp" id="nl-cn" placeholder="Ex.: Cooperativa Beta"></div><div class="two"><div class="f"><label for="nl-ct">Tipo</label><select class="inp" id="nl-ct"><option>Cooperativa</option><option>Revenda</option><option>Loja agropecuária</option></select></div><div class="f"><label for="nl-cc">Cidade da matriz</label><input class="inp" id="nl-cc" placeholder="Cidade/UF"></div></div></div>
  <div class="f"><label for="nl-n">Nome da loja (normalmente a cidade)</label><input class="inp" id="nl-n" required placeholder="Ex.: Águas de Chapecó"></div><div class="f"><label for="nl-o">Observação</label><input class="inp" id="nl-o" placeholder="Ex.: matriz, loja + armazém"></div><button class="btn wide" type="submit">Criar loja</button></form>`),
  personalizar:()=>sheet('Personalizar o início',`<div class="opts">${DASH_CARDS.map(([k,l])=>`<label class="opt"><input type="checkbox" data-dash="${k}" ${S.dash[k]?'checked':''}> ${l}</label>`).join('')}</div><div class="f"><label class="small muted" for="perfil" style="display:block;margin-bottom:4px">Mostrar o que importa para</label><select class="inp" id="perfil"><option>RTV / promotor</option><option>Gestor de equipe</option><option>Consultor</option></select></div><button type="button" class="btn wide" data-close>Pronto</button>`)
@@ -1069,13 +1074,14 @@ document.addEventListener('click',e=>{
   if(d.pot){b.parentNode.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));return}
   if(d.evt||d.prio){b.parentNode.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));return}
   if(b.id==='mic'){if(S.rec.fase==='gravando'){clearInterval(S.recT);S.rec.fase='revisar'}else S.rec.fase='gravando';route();return}
+  if(b.id==='nl-add'){$('#nl-c').value='novo';$('#nl-novo').hidden=false;b.hidden=true;$('#nl-cn').focus();return}
   if(b.id==='regravar'){S.rec.fase='pronto';route();return}
   if(b.id==='salvar'){salvarVoz();return}
 });
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.id==='f-reg'){S.regiao=t.value;renderCliList()}
-  if(t.id==='nl-c'){const n=t.value==='novo';$('#nl-novo').hidden=!n;if(n)$('#nl-cn').focus()}
+  if(t.id==='nl-c'){const n=t.value==='novo';$('#nl-novo').hidden=!n;$('#nl-add').hidden=n;if(n)$('#nl-cn').focus()}
   if(t.id==='cart-sel'){go('loja-'+t.value)}
   if(t.id==='f-loja'){S.lojaF=t.value;renderCliList()}
   if(t.id==='nc-t'){const canal=['Cooperativa','Revenda','Loja agropecuária'].includes(t.value);$('#nc-l-w').hidden=canal;$('#nc-lojas-w').hidden=!canal}
