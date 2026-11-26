@@ -83,7 +83,7 @@ svg{flex:none}
 .icon-btn{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
 .icon-btn svg{width:18px;height:18px}
 
-.view{display:grid;gap:18px;padding-top:8px;max-width:1180px}
+.view{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;padding-top:8px;max-width:1180px}
 .vh{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
 .vh h1{font-size:clamp(24px,3vw,30px);letter-spacing:-.015em}
 .vh p{margin:3px 0 0;color:var(--muted)}
@@ -93,7 +93,7 @@ svg{flex:none}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
 .card>h3,.ch{font-size:15px;font-family:var(--f-body);font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .ch a,.link{color:var(--leaf);font-size:13px;font-weight:500;cursor:pointer;background:none;border:0;padding:0;text-decoration:none}
-.grid{display:grid;gap:14px}
+.grid{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
 .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .g-dash{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
@@ -136,7 +136,8 @@ button.row:hover,a.row:hover{background:var(--sunk)}
 .alert.ai{background:var(--leaf-soft)} .alert.ai svg{color:var(--leaf)}
 
 .chips{display:flex;gap:6px;flex-wrap:wrap}
-.chips.scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;max-width:100%;min-width:0}
+.filters>.chips.scroll{flex:1 1 100%}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px;font-size:13px;white-space:nowrap;color:var(--fg)}
 .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .seg{display:inline-flex;background:var(--sunk);border-radius:10px;padding:3px;gap:2px}
@@ -336,6 +337,7 @@ textarea.inp{resize:vertical;min-height:80px}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){.toast{transition:none}}
 
+.stack,.chat,.list,.hbars,.tl,.opts,.form,.paper,.sheet,.col{grid-template-columns:minmax(0,1fr)}
 .bnav{display:none}
 .nl-add{margin-top:8px;background:var(--leaf-soft);color:var(--leaf);border:1.5px dashed var(--leaf);white-space:normal;text-align:left;font-size:14.5px;padding:12px}
 .nl-add:hover{background:var(--leaf);color:var(--bg);border-style:solid}
@@ -618,6 +620,16 @@ D.clientes.push(
  prod('at','Adriano Tomazi','Seara/SC',180,['s2'],70,'Médio','potencial','(49) 9 9930-4480',[{d:'2026-09-17',k:'Visita',t:'Primeiro contato',p:'Indicação da Santa Luzia de Seara.'}])
 );
 Object.entries({jb:['b2'],fm:['b1'],rk:['v1']}).forEach(([k,v])=>D.clientes.find(c=>c.id===k).lojas=v);
+D.clientes.push(prod('mp','Mauri Piccinini','Chapecó/SC',30,['a1'],8,'Médio','ativo','(49) 9 9927-3150',[{d:'2026-11-17',k:'Visita',t:'Planejamento da safra',p:'Vai plantar 25 ha de milho dos 30 ha. Compra na Alfa de Chapecó.'}]));
+const SAFRAS=['Safra 27/28','Safrinha 2027','Safra 26/27','Safrinha 2026','Safra 25/26'];
+Object.entries({
+ mp:[{safra:'Safra 26/27',milhoHa:25,hib:[{h:'235',sc:10},{h:'242',sc:20},{h:'3016',sc:3}]},{safra:'Safra 25/26',milhoHa:22,hib:[{h:'235',sc:14},{h:'242',sc:15}]}],
+ ld:[{safra:'Safra 26/27',milhoHa:120,hib:[{h:'235',sc:70},{h:'242',sc:88}]},{safra:'Safra 25/26',milhoHa:110,hib:[{h:'235',sc:60},{h:'3016',sc:80}]}],
+ mf:[{safra:'Safra 26/27',milhoHa:60,hib:[{h:'242',sc:50},{h:'3016',sc:30}]}],
+ vr:[{safra:'Safra 26/27',milhoHa:40,hib:[{h:'235',sc:25},{h:'3016',sc:27}]}],
+ cw:[{safra:'Safra 26/27',milhoHa:90,hib:[{h:'242',sc:70},{h:'3016',sc:48}]}],
+ fm:[{safra:'Safra 26/27',milhoHa:500,hib:[{h:'235',sc:300},{h:'242',sc:200},{h:'3016',sc:160}]}]
+}).forEach(([k,v])=>D.clientes.find(c=>c.id===k).safras=v);
 D.opps.push({id:12,c:'ld',p:'DKB358PRO4',safra:'Safrinha 2027',sc:120,ha:120,etapa:'Negociação',prev:'2026-12-20'},{id:13,c:'cw',p:'TL 310 VIP',safra:'Safrinha 2027',sc:300,ha:290,etapa:'Apresentação',prev:'2027-01-15'});
 const META={visitasMes:24,scSafra:9000};
 const VIS_MES=[{m:'jun',v:19},{m:'jul',v:22},{m:'ago',v:25},{m:'set',v:21},{m:'out',v:23},{m:'nov',v:18,part:true}];
@@ -630,7 +642,7 @@ const lojaNome=l=>l.nome;
 const daLoja=id=>D.clientes.filter(c=>(c.lojas||[]).includes(id));
 const canais=()=>D.clientes.filter(c=>c.tipo!=='Loja'&&D.lojas.some(l=>l.canal===c.id));
 const lojaOpts=sel=>canais().map(c=>`<optgroup label="${esc(c.nome)}">${D.lojas.filter(l=>l.canal===c.id).map(l=>`<option value="${l.id}" ${sel===l.id?'selected':''}>${esc(lojaNome(l))}</option>`).join('')}</optgroup>`).join('');
-const haDe=c=>{const m=/([\d.]+) ha/.exec(c.area);return m?+m[1].replace('.',''):0};
+const haDe=c=>{if(c.ha!=null)return c.ha;const m=/([\d.]+) ha/.exec(c.area);return m?+m[1].replace('.',''):0};
 const lojasTags=c=>(c.lojas||[]).map(id=>loja(id)).filter(Boolean).map(l=>`<a class="tag b" href="#loja-${l.id}" style="text-decoration:none">${ic('store').replace('<svg','<svg width="12" height="12"')}${esc(lojaNome(l))}</a>`).join('');
 const novaLoja=o=>{const k=cli(o.canal);return {id:o.id,tipo:'Loja',canal:o.canal,unidade:o.unidade,obs:o.obs||'',nome:curtoCanal(k)+' · '+o.unidade,cidade:o.unidade+((k.cidade.match(/\/[A-Z]{2}$/)||[''])[0]),regiao:k.regiao,segmento:'Loja',potencial:k.potencial,status:k.status==='inativo'?'inativo':'ativo',
   ult:o.tl&&o.tl.length?-diff(fromIso(o.tl[0].d)):null,area:'Loja da '+k.nome,contatos:o.contatos&&o.contatos.length?o.contatos:[{n:'Gerente da loja',f:'A cadastrar',t:'—',e:''}],props:[],tl:o.tl||[]}};
@@ -777,13 +789,19 @@ function fichaHtml(c){
   const ultC=minhas.length?{ult:Math.min(c.ult??9999,...minhas.map(l=>l.ult??9999))}:c;if(ultC.ult===9999)ultC.ult=null;
   const ab=ops.filter(o=>!['Fechada','Perdida'].includes(o.etapa));
   const comprado=sum(ops.filter(o=>o.etapa==='Fechada'),o=>o.sc);
-  const ok=isL?['tl','ct','cl','op']:['tl','ct','pr','op','cp'];
+  const isP=c.segmento==='Produtor';
+  const ok=isL?['tl','ct','cl','op']:isP?['tl','sf','ct','pr','op','cp']:['tl','ct','pr','op','cp'];
   const t=ok.includes(S.tabFicha)?S.tabFicha:'tl';
   const tab=(k,l,n)=>`<button type="button" role="tab" data-ftab="${k}" aria-selected="${t===k}">${l}${n!=null?` <span class="muted">${n}</span>`:''}</button>`;
   const prox=D.eventos.filter(e=>e.c===id&&diff(fromIso(e.d))>=0).sort((a,b)=>(a.d+a.h).localeCompare(b.d+b.h))[0];
   const tli=c.tl.map(e=>({...e})).concat(...minhas.map(l=>l.tl.map(e=>({...e,loja:l})))).sort((a,b)=>b.d.localeCompare(a.d));
   let body='';
   if(t==='tl') body=tli.length?`<div class="tl">${tli.map(e=>`<div class="ev ${e.novo?'new':''}"><small>${curto(fromIso(e.d))} · ${quando(e.d)}</small><b>${e.loja?`<a href="#loja-${e.loja.id}" class="tag b" style="text-decoration:none;margin-right:6px;vertical-align:1px">${ic('store').replace('<svg','<svg width="12" height="12"')}${esc(e.loja.unidade)}</a>`:''}${e.k} · ${esc(e.t)}</b><p>${esc(e.p)}</p>${e.tags?`<div class="chips">${e.tags.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div>`:''}</div>`).join('')}</div>`:`<div class="empty-s">Nenhum registro ainda. Use "Registrar visita".</div>`;
+  if(t==='sf'){const sf=(c.safras||[]).slice().sort((a,b)=>SAFRAS.indexOf(a.safra)-SAFRAS.indexOf(b.safra));
+   body=`<div class="sp" style="margin-bottom:12px"><div>Área total do cliente: <b class="num">${haDe(c)?fmt(haDe(c))+' ha':'não informada'}</b> <button type="button" class="link" data-sheet="area" data-pre="${id}">editar</button></div><button type="button" class="btn sm" data-sheet="safra" data-pre="${id}">${ic('plus',2.4)}Registrar safra</button></div>`+
+   (sf.length?sf.map(x=>{const tot=sum(x.hib,h=>h.sc);return `<div class="card" style="background:var(--bg);margin-bottom:10px"><div class="ch"><span style="font-family:var(--f-display);font-size:17px">${esc(x.safra)}</span><button type="button" class="link" data-sheet="safra" data-pre="${id}|${esc(x.safra)}">editar</button></div>
+    <div class="facts" style="margin-top:0;grid-template-columns:repeat(3,minmax(0,1fr))"><div><small>Área de milho</small><b>${fmt(x.milhoHa)} ha</b></div><div><small>Quantidade de sacos</small><b>${fmt(tot)} sc</b></div><div><small>Sacos por hectare</small><b>${x.milhoHa?(tot/x.milhoHa).toLocaleString('pt-BR',{maximumFractionDigits:2}):'—'}</b></div></div>
+    <div class="tbl" style="margin-top:10px"><table><thead><tr><th>Híbrido</th><th class="n">Sacos</th><th class="n">% do total</th></tr></thead><tbody>${x.hib.map(h=>`<tr><td>${esc(h.h)}</td><td class="n">${fmt(h.sc)} sc</td><td class="n">${tot?Math.round(h.sc/tot*100):0}%</td></tr>`).join('')}<tr><td><b>Total</b></td><td class="n"><b>${fmt(tot)} sc</b></td><td class="n">100%</td></tr></tbody></table></div></div>`}).join(''):'<div class="empty-s">Nenhuma safra registrada ainda.</div>')}
   if(t==='ct') body=`<div class="list">${c.contatos.map(p=>`<div class="row"><span class="av">${ini(p.n)}</span><div class="m"><b>${esc(p.n)}</b><small>${esc(p.f)} · <span class="num">${esc(p.t)}</span>${p.e?' · '+esc(p.e):''}</small></div><div class="r">${p.aniv?`${ic('cake').replace('<svg','<svg width="14" height="14" style="vertical-align:-2px"')} ${p.aniv.split('-').reverse().join('/')}`:''}</div><button type="button" class="icon-btn" data-copy="${esc(p.t)}" aria-label="Copiar telefone de ${esc(p.n)}">${ic('phone')}</button></div>`).join('')}</div><button type="button" class="link" data-sheet="contato" style="margin-top:10px">+ Adicionar contato</button>`;
   if(t==='pr'&&minhas.length) body=`<div class="list">${minhas.map(l=>{const n=daLoja(l.id).length;return `<a class="row" href="#loja-${l.id}" style="text-decoration:none;color:inherit"><span class="av s">${ic('store')}</span><div class="m"><b>${esc(l.unidade)}</b><small>${l.obs?esc(l.obs)+' · ':''}${n} cliente${n===1?'':'s'} · <span style="${l.ult>45?'color:var(--risk)':''}">${ultTxt(l)}</span></small></div><span class="r">abrir</span></a>`}).join('')}</div><button type="button" class="link" data-sheet="novaloja" data-pre="${id}" style="margin-top:10px">+ Adicionar loja ou unidade</button>`;
   else if(t==='pr') body=c.props.length?`<div class="list">${c.props.map(p=>`<div class="row"><span class="av c">${ic('field')}</span><div class="m"><b>${esc(p.n)}</b><small>${esc(p.a)} · ${esc(p.c)}</small></div></div>`).join('')}</div>`:'<div class="empty-s">Nenhuma propriedade cadastrada.</div>';
@@ -796,7 +814,7 @@ function fichaHtml(c){
   const facts=isL?`<div><small>Última visita</small><b>${ultTxt(c,1)}</b></div><div><small>Próximo compromisso</small><b>${prox?curto(fromIso(prox.d))+' · '+prox.h:'nenhum'}</b></div><div><small>Clientes da loja</small><b>${doL.length} · ${fmt(sum(doL,haDe))} ha</b></div><div><small>Em aberto na loja</small><b>${fmt(sum(ab,o=>o.sc))} sc</b></div>`
    :`<div><small>Última visita${minhas.length?' (canal e lojas)':''}</small><b>${ultTxt(ultC,1)}</b></div><div><small>Próximo compromisso</small><b>${prox?curto(fromIso(prox.d))+' · '+prox.h:'nenhum'}</b></div><div><small>Em aberto</small><b>${fmt(sum(ab,o=>o.sc))} sc</b></div><div><small>Comprado na safra</small><b>${fmt(comprado)} sc</b></div>`;
   const tabs=isL?tab('tl','Visitas e registros',tli.length)+tab('ct','Contatos da loja',c.contatos.length)+tab('cl','Clientes da loja',doL.length)+tab('op','Oportunidades',ops.length)
-   :tab('tl','Linha do tempo',tli.length)+tab('ct','Contatos',c.contatos.length)+tab('pr',c.tipo==='Produtor'?'Propriedades':'Lojas e unidades',minhas.length||c.props.length)+tab('op','Oportunidades',ops.length)+tab('cp','Campo');
+   :tab('tl','Linha do tempo',tli.length)+(isP?tab('sf','Safras',(c.safras||[]).length):'')+tab('ct','Contatos',c.contatos.length)+tab('pr',c.tipo==='Produtor'?'Propriedades':'Lojas e unidades',minhas.length||c.props.length)+tab('op','Oportunidades',ops.length)+tab('cp','Campo');
   return `<div class="card"><div class="fhead">${avHtml(c,'lg')}<div class="m">${head}</div></div>
    <div class="qa"><button type="button" class="btn" data-go="registrar" data-pre="${id}">${ic('mic')}Registrar visita</button><button type="button" class="btn sec" data-sheet="evento" data-pre="${id}">${ic('cal')}Agendar</button><button type="button" class="btn sec" data-sheet="opp" data-pre="${id}">${ic('funnel')}Oportunidade</button><button type="button" class="btn sec" data-copy="${esc(c.contatos[0].t)}">${ic('phone')}${esc(c.contatos[0].t)}</button>${isL?`<button type="button" class="btn sec" data-sheet="cliente" data-pre="${id}">${ic('plus',2.4)}Cadastrar cliente nesta loja</button><button type="button" class="btn sec" data-sheet="vinculaloja" data-pre="${id}">${ic('users')}Vincular cliente</button><button type="button" class="btn sec" data-sheet="vinculavarios" data-pre="${id}">${ic('task')}Vincular vários</button>`:''}</div>
    <div class="facts">${facts}</div></div>
@@ -944,6 +962,13 @@ VIEWS.inteligencia=()=>{
    <div class="card"><div class="ch">Volume por híbrido</div>${stack(porProd)}</div>
    <div class="card"><div class="ch">Participação de mercado estimada <span class="small muted" style="font-weight:400">milho, por região</span></div><div class="hbars">${SHARE.map(x=>`<div class="hb"><span>${x.r}</span><div class="trk" style="position:relative;overflow:visible"><i style="width:${x.v/25*100}%;background:var(--leaf)" data-tip="${x.r}: ${x.v}% (meta ${x.meta}%)"></i><b style="position:absolute;left:${x.meta/25*100}%;top:-3px;bottom:-3px;width:2px;background:var(--corn)" aria-hidden="true"></b></div><span class="v">${x.v}% · meta ${x.meta}%</span></div>`).join('')}</div><div class="legend"><span><i style="background:var(--leaf)"></i>Participação atual</span><span><i style="background:var(--corn);width:3px"></i>Meta</span></div></div>
    <div class="card"><div class="ch">Clientes sem acompanhamento</div><div class="tbl"><table><thead><tr><th>Cliente</th><th>Região</th><th class="n">Dias sem visita</th><th>Potencial</th></tr></thead><tbody>${semAc.map(c=>`<tr class="click" data-cli="${c.id}"><td>${esc(c.nome)}</td><td>${c.regiao}</td><td class="n" style="${c.ult>45?'color:var(--risk);font-weight:600':''}">${c.ult}</td><td>${c.potencial}</td></tr>`).join('')}</tbody></table></div></div></div>
+  ${(()=>{const sf=S.safraR||'Safra 26/27',lj=S.safraLoja||'todas';const ps=D.clientes.filter(c=>c.segmento==='Produtor'&&(lj==='todas'||(c.lojas||[]).includes(lj))).map(c=>({c,s:(c.safras||[]).find(x=>x.safra===sf)})).filter(x=>x.s);
+   const hm={};ps.forEach(x=>x.s.hib.forEach(h=>{hm[h.h]=hm[h.h]||{sc:0,n:0};hm[h.h].sc+=h.sc;hm[h.h].n++}));const tot=sum(Object.values(hm),x=>x.sc),ha=sum(ps,x=>x.s.milhoHa);
+   const hs=Object.entries(hm).sort((a,b)=>b[1].sc-a[1].sc),mx=hs.length?hs[0][1].sc:1;
+   return `<div class="card"><div class="ch" style="flex-wrap:wrap">Plantio por safra<div class="filters"><select class="sel" id="sf-r" aria-label="Safra">${SAFRAS.map(s=>`<option ${s===sf?'selected':''}>${s}</option>`).join('')}</select><select class="sel" id="sf-rl" aria-label="Loja"><option value="todas">Todas as lojas</option>${lojaOpts(lj)}</select></div></div>
+   <div class="facts" style="margin:0 0 14px"><div><small>Clientes com plantio</small><b>${ps.length}</b></div><div><small>Área de milho</small><b>${fmt(ha)} ha</b></div><div><small>Quantidade de sacos</small><b>${fmt(tot)} sc</b></div><div><small>Sacos por hectare</small><b>${ha?(tot/ha).toLocaleString('pt-BR',{maximumFractionDigits:2}):'—'}</b></div></div>
+   ${ps.length?`<div class="grid g2"><div><div class="small muted" style="margin-bottom:8px">Sacos por híbrido</div><div class="hbars">${hs.map(([h,x])=>`<div class="hb"><span>${esc(h)}</span><div class="trk"><i style="width:${x.sc/mx*100}%;background:var(--leaf)" data-tip="${esc(h)}: ${fmt(x.sc)} sc em ${x.n} cliente${x.n>1?'s':''}"></i></div><span class="v">${fmt(x.sc)} sc · ${Math.round(x.sc/tot*100)}%</span></div>`).join('')}</div></div>
+   <div class="tbl"><table><thead><tr><th>Cliente</th><th class="n">Milho</th><th class="n">Sacos</th><th>Híbridos</th></tr></thead><tbody>${ps.map(x=>`<tr class="click" data-cli="${x.c.id}"><td>${esc(x.c.nome)}</td><td class="n">${fmt(x.s.milhoHa)} ha</td><td class="n">${fmt(sum(x.s.hib,h=>h.sc))}</td><td class="small">${x.s.hib.map(h=>fmt(h.sc)+' sc '+esc(h.h)).join(', ')}</td></tr>`).join('')}</tbody></table></div></div>`:'<div class="empty-s">Nenhum plantio registrado nesta safra. Registre na aba Safras de cada cliente.</div>'}</div>`})()}
   ${(()=>{const ls=D.lojas.filter(l=>l.status!=='inativo').map(l=>({l,v:l.tl.filter(e=>-diff(fromIso(e.d))<=90).length})).sort((a,b)=>(b.l.ult??999)-(a.l.ult??999));return `<div class="card"><div class="ch">Visitas por loja <span class="small muted" style="font-weight:400">últimos 90 dias</span></div><div class="tbl"><table><thead><tr><th>Loja</th><th class="n">Visitas</th><th class="n">Dias sem visita</th><th class="n">Clientes vinculados</th></tr></thead><tbody>${ls.map(x=>`<tr class="click" data-cli="${x.l.id}"><td>${esc(x.l.nome)}</td><td class="n">${x.v}</td><td class="n" style="${x.l.ult>45?'color:var(--risk);font-weight:600':''}">${x.l.ult??'—'}</td><td class="n">${daLoja(x.l.id).length}</td></tr>`).join('')}</tbody></table></div></div>`})()}
   <div class="card"><div class="ch">Oportunidades de crescimento ${ic('spark').replace('<svg','<svg width="17" height="17" style="color:var(--leaf)"')}</div><div class="stack">
    <div class="alert ai">${ic('spark')}<div><b>Sudoeste PR está 4 pontos abaixo da meta de participação</b><span>A Campo Verde comprou 1.800 sc no verão e ainda não tem oportunidade de safrinha. Ricardo Kunz, indicado por ela, espera visita há 61 dias.</span></div></div>
@@ -1029,6 +1054,7 @@ const SHEETS={
  novo:()=>sheet('O que você quer registrar?',`<div class="menu-g four"><button type="button" class="main" data-go="registrar">${ic('mic')}Gravar visita por voz</button><button type="button" data-sheet="cliente">${ic('users')}Cliente</button><button type="button" data-sheet="opp">${ic('funnel')}Oportunidade</button><button type="button" data-sheet="evento">${ic('cal')}Compromisso</button><button type="button" data-sheet="tarefa">${ic('task')}Tarefa</button><button type="button" data-sheet="campoav">${ic('field')}Campo</button><button type="button" data-sheet="novaloja" data-pre="${S.route==='carteira'&&loja(S.lojaSel)?loja(S.lojaSel).canal:''}">${ic('store')}Loja</button><button type="button" data-sheet="novaloja" data-pre="novo">${ic('coop')}Cooperativa ou revenda</button><button type="button" data-go="relatorios">${ic('doc')}Relatório</button></div>`),
  mais:()=>sheet('Mais',`<div class="menu-g">${[['carteira','Carteira por loja','store'],['visitas','Visitas','visit'],['oportunidades','Oportunidades','funnel'],['campo','Campo','field'],['inteligencia','Resultados','chart'],['assistente','Assistente','spark'],['relatorios','Relatórios','doc']].map(([k,l,i])=>`<a href="#${k}" data-close>${ic(i)}${l}</a>`).join('')}</div><button type="button" class="sync" data-act="sync" style="justify-content:center"><i></i><span class="sync-t">${S.offline?'Sem internet · '+S.pendSync+' registros aguardando':'Sincronizado · Google Agenda conectado'}</span></button>`),
  cliente:(pre)=>sheet('Cadastrar cliente',`<form class="form" id="form-cli"><div class="f"><label for="nc-n">Nome</label><input class="inp" id="nc-n" required placeholder="Ex.: Agropecuária São José"></div><div class="two"><div class="f"><label for="nc-t">Tipo</label><select class="inp" id="nc-t"><option>Produtor</option><option>Revenda</option><option>Cooperativa</option><option>Loja agropecuária</option><option>Empresa</option></select></div><div class="f"><label for="nc-c">Cidade</label><input class="inp" id="nc-c" placeholder="Cidade/UF" value="${pre&&loja(pre)?esc(loja(pre).cidade):''}"></div></div>
+ <div class="f" id="nc-ha-w"><label for="nc-ha">Área total do cliente (ha)</label><input class="inp" id="nc-ha" type="number" min="0" step="0.1" inputmode="decimal" placeholder="Ex.: 30"></div>
  <div class="f" id="nc-l-w"><label for="nc-l">Compra em qual loja</label><select class="inp" id="nc-l"><option value="">Nenhuma ou não sei</option>${lojaOpts(pre)}</select></div>
  <div class="f" id="nc-lojas-w" hidden><label for="nc-lojas">Lojas ou unidades (uma por linha)</label><textarea class="inp" id="nc-lojas" placeholder="Chapecó&#10;Águas de Chapecó&#10;Guatambu"></textarea><div class="small muted" style="margin-top:4px">Cada loja aparece nos filtros como "Nome da cooperativa · Loja". Não precisa escrever com barra.</div></div><div class="two"><div class="f"><label for="nc-ct">Contato principal</label><input class="inp" id="nc-ct" placeholder="Nome e função"></div><div class="f"><label for="nc-tel">Telefone</label><input class="inp" id="nc-tel" inputmode="tel" placeholder="(49) 9 0000-0000"></div></div><div class="f"><label>Potencial</label><div class="seg" id="nc-p"><button type="button" data-pot="Baixo" aria-pressed="false">Baixo</button><button type="button" data-pot="Médio" aria-pressed="true">Médio</button><button type="button" data-pot="Alto" aria-pressed="false">Alto</button></div></div><button class="btn wide" type="submit">Salvar cliente</button><div class="small muted" style="text-align:center">O resto da ficha pode ser completado depois.</div></form>`),
  contato:()=>sheet('Adicionar contato',`<form class="form" id="form-ct"><div class="f"><label for="ct-n">Nome</label><input class="inp" id="ct-n" required></div><div class="two"><div class="f"><label for="ct-f">Função</label><select class="inp" id="ct-f"><option>Agrônomo</option><option>Técnico</option><option>Gerente</option><option>Balconista</option><option>Vendedor</option><option>Produtor</option><option>Outro</option></select></div><div class="f"><label for="ct-t">Telefone</label><input class="inp" id="ct-t" inputmode="tel"></div></div><div class="two"><div class="f"><label for="ct-e">E-mail</label><input class="inp" id="ct-e" type="email"></div><div class="f"><label for="ct-a">Aniversário</label><input class="inp" id="ct-a" placeholder="dd/mm"></div></div><button class="btn wide" type="submit">Salvar contato</button></form>`),
@@ -1040,6 +1066,14 @@ const SHEETS={
  'registro-texto':(pre)=>sheet('Registrar por escrito',`<form class="form" id="form-rt"><div class="two"><div class="f"><label for="rt-c">Cliente</label><select class="inp" id="rt-c">${cliOpts(pre||S.rec&&S.rec.c||'alfa')}</select></div><div class="f"><label for="rt-k">Tipo</label><select class="inp" id="rt-k"><option>Visita</option><option>Reunião</option><option>Ligação</option><option>Atendimento</option></select></div></div><div class="f"><label for="rt-t">Assunto</label><input class="inp" id="rt-t" required placeholder="Ex.: apresentação de portfólio"></div><div class="f"><label for="rt-p">Como foi</label><textarea class="inp" id="rt-p" placeholder="Necessidades, dificuldades, oportunidades, próximos passos"></textarea></div><div class="f"><label for="rt-n">Próximo passo</label><input class="inp" id="rt-n" placeholder="Vira uma tarefa"></div><button class="btn wide" type="submit">Salvar no histórico</button></form>`),
  vincular:(pre)=>{const c=cli(pre);sheet('Onde '+c.nome.split(' ')[0]+' compra',`<form class="form" id="form-vinc"><input type="hidden" id="vc-id" value="${pre}"><div class="small muted">Marque uma ou mais lojas. Depois você vê esse cliente na carteira de cada loja.</div>${canais().map(k=>`<div><div class="ch" style="margin:4px 0 6px;font-size:13px">${esc(k.nome)}</div><div class="opts">${D.lojas.filter(l=>l.canal===k.id).map(l=>`<label class="opt"><input type="checkbox" name="vl" value="${l.id}" ${(c.lojas||[]).includes(l.id)?'checked':''}> ${esc(lojaNome(l))}</label>`).join('')}</div></div>`).join('')}<button class="btn wide" type="submit">Salvar</button></form>`)},
  vinculaloja:(pre)=>{const L=loja(pre);const op=D.clientes.filter(c=>c.segmento==='Produtor'&&!(c.lojas||[]).includes(pre));sheet('Vincular a '+lojaNome(L),`<form class="form" id="form-vl"><input type="hidden" id="vl-id" value="${pre}"><div class="f"><label for="vl-c">Cliente</label><select class="inp" id="vl-c">${op.map(c=>`<option value="${c.id}">${esc(c.nome)} · ${esc(c.cidade)}</option>`).join('')}</select></div><button class="btn wide" type="submit" ${op.length?'':'disabled'}>Vincular</button></form>`)},
+ area:(pre)=>{const c=cli(pre);sheet('Área do cliente',`<form class="form" id="form-ha"><input type="hidden" id="ha-c" value="${pre}"><div class="f"><label for="ha-v">Área total de ${esc(c.nome)} (ha)</label><input class="inp" id="ha-v" type="number" min="0" step="0.1" inputmode="decimal" value="${haDe(c)||''}" required></div><button class="btn wide" type="submit">Salvar</button></form>`)},
+ safra:(pre)=>{const [cid,sn]=pre.split('|');const c=cli(cid);const x=(c.safras||[]).find(s=>s.safra===sn)||{safra:'Safra 26/27',milhoHa:'',hib:[{h:'',sc:''}]};
+  sheet((sn?'Editar ':'Registrar ')+'safra',`<form class="form" id="form-sf"><input type="hidden" id="sf-c" value="${cid}"><input type="hidden" id="sf-orig" value="${esc(sn||'')}"><div class="small muted">${esc(c.nome)}${haDe(c)?' · área total '+fmt(haDe(c))+' ha':''}</div>
+  <div class="two"><div class="f"><label for="sf-s">Safra</label><select class="inp" id="sf-s">${SAFRAS.map(s=>`<option ${s===x.safra?'selected':''}>${s}</option>`).join('')}</select></div><div class="f"><label for="sf-ha">Área de milho (ha)</label><input class="inp" id="sf-ha" type="number" min="0" step="0.1" inputmode="decimal" value="${x.milhoHa}" required></div></div>
+  <div class="f"><label>Híbridos e quantidade de sacos</label><div id="sf-rows" class="stack" style="gap:6px">${x.hib.map(sfRow).join('')}</div><button type="button" class="link" id="sf-add" style="margin-top:8px">+ Adicionar híbrido</button></div>
+  <div class="sp" style="background:var(--leaf-soft);border-radius:10px;padding:10px 12px"><span>Quantidade de sacos</span><b id="sf-tot" class="num">0 sc</b></div>
+  <datalist id="hibs">${hibridosConhecidos().map(h=>`<option value="${esc(h)}">`).join('')}</datalist>
+  <button class="btn wide" type="submit">Salvar safra</button></form>`);sfTotal()},
  vinculavarios:(pre)=>{const L=loja(pre);const ps=D.clientes.filter(c=>c.segmento==='Produtor').sort((a,b)=>a.nome.localeCompare(b.nome));
   sheet('Clientes de '+L.nome,`<form class="form" id="form-vv"><input type="hidden" id="vv-id" value="${pre}"><div class="small muted">Marque todos os clientes que compram nesta loja. Quem você desmarcar sai da loja.</div>
   <input class="inp" id="vv-q" type="search" placeholder="Filtrar por nome ou cidade" autocomplete="off" aria-label="Filtrar clientes">
@@ -1052,6 +1086,9 @@ const SHEETS={
  <div class="f"><label for="nl-n">Nome da loja (normalmente a cidade)</label><input class="inp" id="nl-n" required placeholder="Ex.: Águas de Chapecó"></div><div class="f"><label for="nl-o">Observação</label><input class="inp" id="nl-o" placeholder="Ex.: matriz, loja + armazém"></div><button class="btn wide" type="submit">Criar loja</button></form>`),
  personalizar:()=>sheet('Personalizar o início',`<div class="opts">${DASH_CARDS.map(([k,l])=>`<label class="opt"><input type="checkbox" data-dash="${k}" ${S.dash[k]?'checked':''}> ${l}</label>`).join('')}</div><div class="f"><label class="small muted" for="perfil" style="display:block;margin-bottom:4px">Mostrar o que importa para</label><select class="inp" id="perfil"><option>RTV / promotor</option><option>Gestor de equipe</option><option>Consultor</option></select></div><button type="button" class="btn wide" data-close>Pronto</button>`)
 };
+function sfRow(h){return `<div class="sf-row" style="display:grid;grid-template-columns:minmax(0,1fr) 104px 38px;gap:6px"><input class="inp" name="sf-h" list="hibs" placeholder="Híbrido (ex.: 235)" value="${esc(h.h||'')}" aria-label="Híbrido"><input class="inp" name="sf-sc" type="number" min="0" inputmode="numeric" placeholder="Sacos" value="${h.sc??''}" aria-label="Sacos"><button type="button" class="icon-btn" data-sfdel="1" aria-label="Remover híbrido">${ic('x')}</button></div>`}
+function sfTotal(){const el=$('#sf-tot');if(!el)return;const t=[...document.querySelectorAll('[name=sf-sc]')].reduce((a,i)=>a+(+i.value||0),0),ha=+$('#sf-ha').value;el.textContent=fmt(t)+' sc'+(ha?' · '+(t/ha).toLocaleString('pt-BR',{maximumFractionDigits:2})+' sc/ha':'')}
+const hibridosConhecidos=()=>[...new Set(['235','242','3016','DKB358PRO4','TL 240 PRO','TL 310 VIP',...D.clientes.flatMap(c=>(c.safras||[]).flatMap(s=>s.hib.map(h=>h.h)))])];
 function oppSheet(id){
   const o=D.opps.find(x=>x.id==id),c=cli(o.c);
   sheet(c.nome,`<div class="sp"><div><b>${o.p}</b> · ${o.safra}</div>${etapaTag(o)}</div>
@@ -1110,6 +1147,8 @@ document.addEventListener('click',e=>{
   if(d.evt||d.prio){b.parentNode.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));return}
   if(b.id==='mic'){if(S.rec.fase==='gravando'){clearInterval(S.recT);S.rec.fase='revisar'}else S.rec.fase='gravando';route();return}
   if(b.id==='vv-all'||b.id==='vv-none'){document.querySelectorAll('#vv-list label:not([hidden]) input').forEach(x=>x.checked=b.id==='vv-all');$('#vv-n').textContent=document.querySelectorAll('#vv-list input:checked').length;return}
+  if(b.id==='sf-add'){$('#sf-rows').insertAdjacentHTML('beforeend',sfRow({}));$('#sf-rows .sf-row:last-child input').focus();return}
+  if(d.sfdel){const rows=document.querySelectorAll('#sf-rows .sf-row');if(rows.length>1)b.closest('.sf-row').remove();else b.closest('.sf-row').querySelectorAll('input').forEach(i=>i.value='');sfTotal();return}
   if(b.id==='nl-add'){$('#nl-c').value='novo';$('#nl-novo').hidden=false;b.hidden=true;$('#nl-cn').focus();return}
   if(b.id==='regravar'){S.rec.fase='pronto';route();return}
   if(b.id==='salvar'){salvarVoz();return}
@@ -1119,9 +1158,11 @@ document.addEventListener('change',e=>{
   if(t.id==='f-reg'){S.regiao=t.value;renderCliList()}
   if(t.id==='nl-c'){const n=t.value==='novo';$('#nl-novo').hidden=!n;$('#nl-add').hidden=n;if(n)$('#nl-cn').focus()}
   if(t.name==='vv'){$('#vv-n').textContent=document.querySelectorAll('#vv-list input:checked').length}
+  if(t.id==='sf-r'){S.safraR=t.value;route()}
+  if(t.id==='sf-rl'){S.safraLoja=t.value;route()}
   if(t.id==='cart-sel'){go('loja-'+t.value)}
   if(t.id==='f-loja'){S.lojaF=t.value;renderCliList()}
-  if(t.id==='nc-t'){const canal=['Cooperativa','Revenda','Loja agropecuária'].includes(t.value);$('#nc-l-w').hidden=canal;$('#nc-lojas-w').hidden=!canal}
+  if(t.id==='nc-t'){const canal=['Cooperativa','Revenda','Loja agropecuária'].includes(t.value);$('#nc-l-w').hidden=canal;$('#nc-ha-w').hidden=canal;$('#nc-lojas-w').hidden=!canal}
   if(t.id==='r-cli'){S.rec.c=t.value}
   if(t.id==='r-audio'&&t.files.length){S.rec.fase='revisar';route();toast('Áudio recebido: '+t.files[0].name)}
   if(t.dataset.dash){S.dash[t.dataset.dash]=t.checked;try{localStorage.setItem('talhao-dash',JSON.stringify(S.dash))}catch(_){}if(S.route==='inicio')route()}
@@ -1131,10 +1172,14 @@ document.addEventListener('submit',e=>{
   e.preventDefault();const f=e.target,v=id=>($('#'+id)||{}).value||'';
   if(f.id==='askf'){const q=v('askq').trim();if(q)perguntar(q);return}
   if(f.id==='form-cli'){const id='n'+Date.now();const pot=($('#nc-p [aria-pressed="true"]')||{}).dataset.pot||'Médio';const [cn,...cf]=(v('nc-ct')||'Contato principal').split(/[,·-]/);
-    D.clientes.unshift({id,nome:v('nc-n'),tipo:v('nc-t'),cidade:v('nc-c')||'—',regiao:'Oeste SC',segmento:['Cooperativa','Revenda','Loja agropecuária'].includes(v('nc-t'))?'Canal':'Produtor',potencial:pot,status:'potencial',ult:0,area:'Cadastro novo',lojas:v('nc-l')&&$('#nc-l-w').hidden===false?[v('nc-l')]:[],contatos:[{n:cn.trim(),f:(cf.join(' ').trim()||'Contato'),t:v('nc-tel')||'—',e:''}],props:[],tl:[{d:iso(HOJE),k:'Cadastro',t:'Cliente cadastrado',p:'Ficha criada.',novo:true}]});
+    D.clientes.unshift({id,nome:v('nc-n'),tipo:v('nc-t'),cidade:v('nc-c')||'—',regiao:'Oeste SC',segmento:['Cooperativa','Revenda','Loja agropecuária'].includes(v('nc-t'))?'Canal':'Produtor',potencial:pot,status:'potencial',ult:0,ha:v('nc-ha')&&!$('#nc-ha-w').hidden?+v('nc-ha'):null,area:v('nc-ha')&&!$('#nc-ha-w').hidden?fmt(+v('nc-ha'))+' ha':'Cadastro novo',lojas:v('nc-l')&&$('#nc-l-w').hidden===false?[v('nc-l')]:[],contatos:[{n:cn.trim(),f:(cf.join(' ').trim()||'Contato'),t:v('nc-tel')||'—',e:''}],props:[],tl:[{d:iso(HOJE),k:'Cadastro',t:'Cliente cadastrado',p:'Ficha criada.',novo:true}]});
     if(!$('#nc-lojas-w').hidden)v('nc-lojas').split('\n').map(x=>x.trim()).filter(Boolean).forEach((x,i)=>D.clientes.push(novaLoja({id:id+'-'+i,canal:id,unidade:x})));
     registrarOffline();closeSheet();toast('Cliente cadastrado');go('cliente-'+id);return}
   if(f.id==='form-vinc'){const c=cli(v('vc-id'));c.lojas=[...f.querySelectorAll('input[name=vl]:checked')].map(x=>x.value);closeSheet();toast(c.lojas.length?'Lojas atualizadas':'Cliente sem loja vinculada');route();return}
+  if(f.id==='form-sf'){const c=cli(v('sf-c'));const hs=[...f.querySelectorAll('.sf-row')].map(r=>({h:r.querySelector('[name=sf-h]').value.trim(),sc:+r.querySelector('[name=sf-sc]').value||0})).filter(h=>h.h&&h.sc);const sn=v('sf-s'),orig=v('sf-orig');
+    if(!hs.length){toast('Informe pelo menos um híbrido com a quantidade de sacos');return}
+    c.safras=(c.safras||[]).filter(x=>x.safra!==orig&&x.safra!==sn);c.safras.push({safra:sn,milhoHa:+v('sf-ha')||0,hib:hs});registrarOffline();closeSheet();toast(sn+' salva: '+fmt(sum(hs,h=>h.sc))+' sc');S.tabFicha='sf';route();return}
+  if(f.id==='form-ha'){const c=cli(v('ha-c'));c.ha=+v('ha-v')||0;c.area=fmt(c.ha)+' ha'+(c.area.includes(' · ')?c.area.slice(c.area.indexOf(' · ')):'');closeSheet();toast('Área atualizada: '+fmt(c.ha)+' ha');route();return}
   if(f.id==='form-vv'){const lid=v('vv-id');let n=0;f.querySelectorAll('input[name=vv]').forEach(x=>{const c=cli(x.value);const tem=(c.lojas||[]).includes(lid);if(x.checked&&!tem){c.lojas=[...(c.lojas||[]),lid];n++}if(!x.checked&&tem){c.lojas=c.lojas.filter(k=>k!==lid);n++}});closeSheet();toast(n?n+' vínculo'+(n>1?'s':'')+' atualizado'+(n>1?'s':''):'Nada mudou');S.tabFicha='cl';route();return}
   if(f.id==='form-vl'){const c=cli(v('vl-c')),lid=v('vl-id');c.lojas=[...new Set([...(c.lojas||[]),lid])];closeSheet();toast(c.nome+' vinculado a '+lojaNome(loja(lid)));route();return}
   if(f.id==='form-nl'){const id='x'+Date.now();let canal=v('nl-c');
@@ -1167,7 +1212,7 @@ function perguntar(q){
 
 /* busca global */
 const q=$('#q'),res=$('#results');
-document.addEventListener('input',e=>{if(e.target.id==='vv-q'){const t=e.target.value.trim().toLowerCase();document.querySelectorAll('#vv-list label').forEach(l=>l.hidden=!!t&&!l.dataset.busca.includes(t))}});
+document.addEventListener('input',e=>{if(e.target.name==='sf-sc'||e.target.id==='sf-ha')sfTotal();if(e.target.id==='vv-q'){const t=e.target.value.trim().toLowerCase();document.querySelectorAll('#vv-list label').forEach(l=>l.hidden=!!t&&!l.dataset.busca.includes(t))}});
 q.addEventListener('input',()=>{
   const t=q.value.trim().toLowerCase();if(t.length<2){res.hidden=true;return}
   const cs=D.clientes.filter(c=>c.tipo!=='Loja'&&(c.nome+' '+c.cidade+' '+c.tipo).toLowerCase().includes(t));
