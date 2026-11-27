@@ -8,7 +8,7 @@ O projeto está na **fase 0: estruturação e validação**. Ainda não existe o
 
 | Arquivo | Conteúdo |
 |---|---|
-| `prototipo/index.html` | Protótipo navegável da plataforma completa, com dados fictícios: Início (painel personalizável), Clientes e ficha (com área total e registro por safra: área de milho, sacos e híbridos), Carteira por loja (cada loja de cooperativa ou revenda tem ficha própria com visitas, contatos, oportunidades e os clientes vinculados a ela), Visitas e registro por voz com IA, Oportunidades (funil em sacos), Campo (campos demonstrativos, dias de campo, concorrência), Agenda (dia, semana, mês e Google Agenda), Resultados, Assistente e Relatórios. Funciona no celular e no computador. Começa vazio e guarda os dados no próprio navegador (em "Meus dados" dá para fazer cópia de segurança, restaurar, carregar dados de exemplo ou apagar tudo). |
+| `prototipo/index.html` | Protótipo navegável da plataforma completa, com dados fictícios: Início (painel personalizável), Clientes e ficha (categoria EIB ou Massa, edição e exclusão, área total e registro por safra: área de milho, sacos e híbridos), Carteira por loja (cada loja de cooperativa ou revenda tem ficha própria com visitas, contatos, oportunidades e os clientes vinculados a ela), Visitas e registro por voz com IA, Oportunidades (funil em sacos), Campo (campos demonstrativos, dias de campo, concorrência), Agenda (dia, semana, mês e Google Agenda), Resultados, Assistente e Relatórios. Funciona no celular e no computador. Começa vazio e guarda os dados no próprio navegador (em "Meus dados" dá para fazer cópia de segurança, restaurar, carregar dados de exemplo ou apagar tudo). |
 | `prototipo/plano.html` | Plano do produto e pesquisa de mercado e concorrentes. |
 
 ## Resumo das decisões
